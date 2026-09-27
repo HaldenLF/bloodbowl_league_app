@@ -24,7 +24,7 @@ def upgrade() -> None:
     op.add_column('races', sa.Column('tier', sa.Integer(), nullable=True))
     op.add_column('races', sa.Column('reroll_cost', sa.Integer(), nullable=True))
     op.add_column('races', sa.Column('affiliated_league', sa.String(length=100), nullable=True))
-    op.add_column('races', sa.Column('apothecary_allowed', sa.Boolean(), nullable=False))
+    op.add_column('races', sa.Column('apothecary_allowed', sa.Boolean(), default=True))
     op.add_column('races', sa.Column('special_rule_text', sa.Text(), nullable=True))
     # ### end Alembic commands ###
 
