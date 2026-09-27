@@ -3,8 +3,8 @@ from sqlalchemy import Integer, String, Boolean, Text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
-class Race(Base):
-    __tablename__ = "races"
+class db_Race(Base):
+    __tablename__ = "db_races"
     
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
@@ -14,4 +14,4 @@ class Race(Base):
     apothecary_allowed: Mapped[bool] = mapped_column(Boolean, default=True)
     special_rule_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     
-    positions: Mapped[list["Position"]] = relationship(back_populates="race")
+    positions: Mapped[list["db_position"]] = relationship(back_populates="race")
