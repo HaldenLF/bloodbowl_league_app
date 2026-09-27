@@ -7,3 +7,4 @@ from app.models.inducements import Inducement
 from app.models.mercenaries import Mercenary
 from app.models.dungeon_bowl_races import db_Race
 from app.models.dungeon_bowl_positions import db_position
+from app.models.league import League
