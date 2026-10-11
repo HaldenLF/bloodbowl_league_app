@@ -16,6 +16,7 @@ class Season(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     league_id: Mapped[int] = mapped_column(ForeignKey("leagues.id"), nullable=False)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
+    teams: Mapped[list["Team"]] = relationship(back_populates="season")
     format: Mapped[LeagueFormat] = mapped_column(Enum(LeagueFormat, name="league_format"), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     league: Mapped["League"] = relationship(back_populates="season")
