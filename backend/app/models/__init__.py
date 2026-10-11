@@ -10,3 +10,4 @@ from app.models.dungeon_bowl_positions import db_position
 from app.models.league import League
 from app.models.seasons import Season
 from app.models.teams import Team
+from app.models.players import Player

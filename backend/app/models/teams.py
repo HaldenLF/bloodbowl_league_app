@@ -22,3 +22,5 @@ class Team(Base):
     apothecary: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     dedicated_fans: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    players: Mapped[list["Player"]] = relationship(back_populates="team")
