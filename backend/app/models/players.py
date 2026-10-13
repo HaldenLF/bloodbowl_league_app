@@ -24,4 +24,4 @@ class Player(Base):
     
     team: Mapped["Team"] = relationship("Team", back_populates="players")
     position: Mapped["Position"] = relationship()
-    
+    advancements: Mapped[list["PlayerAdvancement"]] = relationship(back_populates="player")
