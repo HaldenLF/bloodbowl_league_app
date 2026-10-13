@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Integer, String, DateTime, func, ForeignKey, UniqueConstraint
+from sqlalchemy import Integer, String, DateTime, func, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -11,8 +11,7 @@ class Player(Base):
     team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), nullable=False)
     position_id: Mapped[int] = mapped_column(ForeignKey("positions.id"), nullable=False)
     number: Mapped[int] = mapped_column(Integer, nullable=False)
-    name: Mapped[str] = mapped_column(String(100), nullable=False)
-    coach_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     completions: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     touchdowns: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     interceptions: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
@@ -24,5 +23,5 @@ class Player(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     
     team: Mapped["Team"] = relationship("Team", back_populates="players")
-    position: Mapped["Position"] = relationship("Position", back_populates="players")
+    position: Mapped["Position"] = relationship()
     
