@@ -6,7 +6,9 @@ from app.core.database import Base
 
 class GameResult(Base):
     __tablename__ = "game_results"
-    __table_args__ = (CheckConstraint("home_touchdowns >= 0 AND away_touchdowns >= 0 AND home_casualties >= 0 AND away_casualties >= 0",
+    __table_args__ = (CheckConstraint(
+                        "home_touchdowns >= 0 AND away_touchdowns >= 0 "
+                        "AND home_casualties >= 0 AND away_casualties >= 0",
                         name="ck_game_results_counts_non_negative",),)
     
     id: Mapped[int] = mapped_column(primary_key=True)
