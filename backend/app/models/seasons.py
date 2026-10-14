@@ -21,3 +21,4 @@ class Season(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     league: Mapped["League"] = relationship(back_populates="seasons")
     
+    games: Mapped[list["Game"]] = relationship(back_populates="season")

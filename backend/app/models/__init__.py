@@ -12,3 +12,4 @@ from app.models.seasons import Season
 from app.models.teams import Team
 from app.models.players import Player
 from app.models.player_advancements import PlayerAdvancement
+from app.models.games import Game
