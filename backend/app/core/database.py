@@ -51,3 +51,10 @@ dungeon_bowl_affiliations = Table(
     Column("db_race_id", ForeignKey("db_races.id"), primary_key=True),
     Column("affiliation_id", ForeignKey("affiliations.id"), primary_key=True),
 )
+
+tournament_entries = Table(
+    "tournament_entries",
+    Base.metadata,
+    Column("tournament_id", ForeignKey("tournaments.id"), primary_key=True),
+    Column("team_id", ForeignKey("teams.id"), primary_key=True),
+)

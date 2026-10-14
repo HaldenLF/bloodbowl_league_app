@@ -16,3 +16,4 @@ from app.models.games import Game
 from app.models.game_results import GameResult
 from app.models.standings import Standing
 from app.models.tournaments import Tournament, TournamentFormat
+from app.models.tournament_matches import TournamentMatch

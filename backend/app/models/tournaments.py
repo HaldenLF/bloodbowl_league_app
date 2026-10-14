@@ -24,3 +24,4 @@ class Tournament(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     league: Mapped["League"] = relationship(back_populates="tournaments")
+    matches: Mapped[list["TournamentMatch"]] = relationship(back_populates="tournament")
