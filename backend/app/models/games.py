@@ -22,4 +22,4 @@ class Game(Base):
     season: Mapped["Season"] = relationship(back_populates="games")
     home_team: Mapped["Team"] = relationship(foreign_keys=[home_team_id])
     away_team: Mapped["Team"] = relationship(foreign_keys=[away_team_id])
-    
+    result: Mapped["GameResult | None"] = relationship(back_populates="game", uselist=False)
