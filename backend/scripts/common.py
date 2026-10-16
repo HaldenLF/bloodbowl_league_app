@@ -23,3 +23,19 @@ def get_or_create(db, model, name: str, **fields):
         for key, value in fields.items():
             setattr(obj, key, value)
     return obj
+
+
+def upsert(db, model, keys: dict, **fields):
+    stmt = select(model)
+    for column, value in keys.items():
+        stmt = stmt.where(getattr(model, column) == value)
+    obj = db.scalar(stmt)
+    if obj is None:
+        obj = model(**keys, **fields)
+        db.add(obj)
+        db.flush()
+    else:
+        for column, value in fields.items():
+            setattr(obj, column, value)
+    return obj
+
