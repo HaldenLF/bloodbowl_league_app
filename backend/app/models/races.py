@@ -10,6 +10,7 @@ class Race(Base):
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     tier: Mapped[int | None] = mapped_column(Integer, nullable=True)
     reroll_cost: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    reroll_cost_7s: Mapped[int | None] = mapped_column(Integer, nullable=True)
     apothecary_allowed: Mapped[bool] = mapped_column(Boolean, default=True)
     special_rule_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     affiliations: Mapped[list["Affiliation"]] = relationship(secondary=race_affiliations, back_populates="races")
