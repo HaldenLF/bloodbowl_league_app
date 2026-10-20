@@ -3,10 +3,10 @@ from sqlalchemy import select
 from app.core.database import SessionLocal
 from app.models.races import Race
 from app.models.positions import Position
-from scripts.common import load_sheet, upsert
+from scripts.common import load_sheet, upsert, access
 
 KEY_RE = re.compile(r"^(.*?)(\d+|J)$")
-ACCESS = ["General", "Agility", "Strength", "Passing", "Mutation", "Devious"]
+
 
 
 def stat(value):
@@ -16,11 +16,6 @@ def stat(value):
 def clean_name(raw):
     name = re.sub(r"\s*\([^)]*\)", "", str(raw))
     return re.sub(r"\s+", " ", name).strip(" *")
-
-
-def access(cells, marker):
-    found = [cat for cat, c in zip(ACCESS, cells) if c == marker]
-    return ", ".join(found) or None
 
 
 def main():

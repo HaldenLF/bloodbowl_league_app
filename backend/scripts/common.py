@@ -7,6 +7,7 @@ from sqlalchemy import select
 warnings.filterwarnings("ignore", message="Data Validation extension")
 
 DATA_FILE = Path(__file__).resolve().parent.parent / "data" / "BB - Database.xlsx"
+ACCESS = ["General", "Agility", "Strength", "Passing", "Mutation", "Devious"]
 
 
 def load_sheet(name: str):
@@ -39,3 +40,7 @@ def upsert(db, model, keys: dict, **fields):
             setattr(obj, column, value)
     return obj
 
+# changes attibutes from "G" to general etc.
+def access(cells, marker):
+    found = [cat for cat, c in zip(ACCESS, cells) if c == marker]
+    return ", ".join(found) or None

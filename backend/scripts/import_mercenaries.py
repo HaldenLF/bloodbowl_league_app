@@ -58,9 +58,15 @@ def main():
             affiliations = [get_or_create(db, Affiliation, t) for t in team_names]
 
             merc = get_or_create(
-                db, Mercenary, name,
+                db, 
+                Mercenary, 
+                name,
                 max_allowed=max_allowed,
-                movement=ma, strength=st, agility=ag, passing=pa, armor=av,
+                movement=ma, 
+                strength=st, 
+                agility=ag, 
+                passing=pa, 
+                armor=av,
                 skill_list=skills,
                 cost=cost,
                 upkeep=upkeep,

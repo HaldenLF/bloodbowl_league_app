@@ -17,7 +17,8 @@ class db_position(Base):
     armor: Mapped[int] = mapped_column(Integer, nullable=False)
     skill_list: Mapped[str | None] = mapped_column(Text, nullable=True)
     cost: Mapped[int] = mapped_column(Integer, nullable=False)
-    primary_access: Mapped[str] = mapped_column(String(100), nullable=False)
-    secondary_access: Mapped[str] = mapped_column(String(100), nullable=False)
+    primary_access: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    secondary_access: Mapped[str | None] = mapped_column(String(100), nullable=True)
     
     race: Mapped["db_Race"] = relationship(back_populates="positions")
+    role_code: Mapped[str | None] = mapped_column(String(10), nullable=True)
