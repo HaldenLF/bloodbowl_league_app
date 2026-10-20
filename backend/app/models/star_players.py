@@ -2,6 +2,7 @@ from app.core.database import Base
 from sqlalchemy import Integer, String, Boolean, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import star_player_affiliations
+import sqlalchemy as sa
 
 class StarPlayer(Base):
     __tablename__ = "star_players"
@@ -19,3 +20,5 @@ class StarPlayer(Base):
     cost: Mapped[int] = mapped_column(Integer, nullable=False)
     upkeep: Mapped[int] = mapped_column(Integer, nullable=False)
     special_rule: Mapped[str | None] = mapped_column(Text, nullable=True)
+    
+    inducement_only: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=sa.false())

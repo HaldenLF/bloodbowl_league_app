@@ -1,5 +1,5 @@
 from app.core.database import Base
-from sqlalchemy import Integer, String, Boolean, Text
+from sqlalchemy import Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import mercenaries_affiliations
 
@@ -19,3 +19,4 @@ class Mercenary(Base):
     upkeep: Mapped[int] = mapped_column(Integer, nullable=False)
     affiliations: Mapped[list["Affiliation"]] = relationship(secondary=mercenaries_affiliations, back_populates="mercenaries")
     special_rule: Mapped[str | None] = mapped_column(Text, nullable=True)
+    

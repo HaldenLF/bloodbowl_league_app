@@ -13,3 +13,5 @@ class Inducement(Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     cost: Mapped[int] = mapped_column(Integer, nullable=False)
     affiliations: Mapped[list["Affiliation"]] = relationship(secondary=inducements_affiliations, back_populates="inducements")
+    
+    category: Mapped[str | None] = mapped_column(String(50), nullable=True)
