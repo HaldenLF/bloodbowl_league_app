@@ -23,9 +23,6 @@ def list_leagues(db: Session = Depends(get_db)):
 
 @router.get("/{league_id}", response_model=LeagueOut)
 def get_league(league_id: int, db: Session = Depends(get_db)):
-    league = db.get(League, league_id)
-    if league is None:
-        raise HTTPException(status_code=404, detail="League not found")
     return get_league_or_404(db, league_id)
 
 

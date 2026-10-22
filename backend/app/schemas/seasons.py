@@ -6,7 +6,7 @@ class SeasonCreate(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     format: LeagueFormat
     is_active: bool = True
-    
+    starting_treasury: int = Field(ge=0)
 
 class SeasonOut(ORMModel):
     id: int
@@ -14,3 +14,4 @@ class SeasonOut(ORMModel):
     name: str 
     format: LeagueFormat
     is_active: bool
+    starting_treasury: int

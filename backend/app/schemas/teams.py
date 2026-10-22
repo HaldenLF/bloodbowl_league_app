@@ -6,11 +6,10 @@ class TeamCreate(BaseModel):
     race_id: int
     name: str = Field(min_length=1, max_length=150)
     coach_name: str = Field(min_length=1, max_length=100)
-    treasury: int = Field(min_length=0, ge=0)
-    re_rolls: int = Field(min_length=1, ge=0)
+    re_rolls: int = Field(default=0, ge=0)
     assistant_coaches: int = Field(default=0, ge=0)
     cheerleaders: int = Field(default=0, ge=0)
-    apothecary: int = Field(default=0, le=1)
+    apothecary: int = Field(default=0, ge=0, le=1)
     dedicated_fans: int = Field(default=1, ge=1)
     
     

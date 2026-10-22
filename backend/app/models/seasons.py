@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import String, Boolean, Enum, ForeignKey, String, UniqueConstraint
+from sqlalchemy import String, Boolean, Enum, ForeignKey, String, UniqueConstraint, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -20,5 +20,6 @@ class Season(Base):
     format: Mapped[LeagueFormat] = mapped_column(Enum(LeagueFormat, name="league_format"), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     league: Mapped["League"] = relationship(back_populates="seasons")
+    starting_treasury: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     
     games: Mapped[list["Game"]] = relationship(back_populates="season")
