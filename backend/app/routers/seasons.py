@@ -12,6 +12,13 @@ from app.routers.leagues import get_league_or_404
 router = APIRouter(tags=["seasons"])
 
 
+def get_season_or_404(db: Session, season_id: int) -> Season:
+    season = db.get(Season, season_id)
+    if season is None:
+        raise HTTPException(status_code=404, detail="Season not found")
+    return season
+
+
 @router.get("/leagues/{league_id}/seasons", response_model=list[SeasonOut])
 def list_seasons(league_id: int, db: Session = Depends(get_db)):
     get_league_or_404(db, league_id)
@@ -46,4 +53,4 @@ def get_season(season_id: int, db: Session = Depends(get_db)):
     season = db.get(Season, season_id)
     if season is None:
         raise HTTPException(status_code=404, detail="Season not found")
-    return season
+    return get_season_or_404(db, season_id)
