@@ -1,9 +1,16 @@
+import enum
 from datetime import datetime
-from sqlalchemy import DateTime, func, String
+from sqlalchemy import DateTime, func, String, Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.core.security import generate_join_code
 from app.core.database import Base
 
+
+class JoinPolicy(str, enum.Enum):
+    INVITE_ONLY = "invite_only"
+    OPEN = "open"
+    APPROVAL = "approval"
 
 class League(Base):
     __tablename__ = "leagues"
@@ -14,3 +21,12 @@ class League(Base):
     seasons: Mapped[list["Season"]] = relationship(back_populates="league")
     
     tournaments: Mapped[list["Tournament"]] = relationship(back_populates="league")
+    
+    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    join_policy: Mapped[JoinPolicy] = mapped_column(
+        Enum(JoinPolicy, name="join_policy"), nullable=False, server_default="INVITE_ONLY"
+    )
+    join_code: Mapped[str] = mapped_column(
+        String(32), unique=True, nullable=False, default=generate_join_code
+    )
+    owner: Mapped["User"] = relationship()

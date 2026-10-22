@@ -2,9 +2,10 @@ from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from app.core.database import get_db
-from app.routers import races, skills, inducements, star_players, mercenaries, dungeon_bowl, leagues, seasons,teams
+from app.routers import races, skills, inducements, star_players, mercenaries, dungeon_bowl, leagues, seasons, teams, commissioner, auth
 
 app = FastAPI(title="Blood Bowl League App", version="0.1.0")
+app.include_router(auth.router)
 app.include_router(races.router)
 app.include_router(skills.router)
 app.include_router(inducements.router)
@@ -14,6 +15,7 @@ app.include_router(dungeon_bowl.router)
 app.include_router(leagues.router)
 app.include_router(seasons.router)
 app.include_router(teams.router)
+app.include_router(commissioner.router)
 
 @app.get('/health')
 def health_check():

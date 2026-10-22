@@ -7,6 +7,7 @@ from app.core.database import get_db
 from app.models.seasons import Season
 from app.schemas.seasons import SeasonCreate, SeasonOut
 from app.routers.leagues import get_league_or_404
+from app.core.security import require_commissioner
 
 
 router = APIRouter(tags=["seasons"])
@@ -27,7 +28,7 @@ def list_seasons(league_id: int, db: Session = Depends(get_db)):
     ).all()
 
 
-@router.post("/leagues/{league_id}/seasons", response_model=SeasonOut, status_code=201)
+@router.post("/leagues/{league_id}/seasons", response_model=SeasonOut, status_code=201, dependencies=[Depends(require_commissioner)])
 def create_season(league_id: int, payload: SeasonCreate, db: Session = Depends(get_db)):
     get_league_or_404(db, league_id)
 
@@ -50,7 +51,4 @@ def create_season(league_id: int, payload: SeasonCreate, db: Session = Depends(g
 
 @router.get("/seasons/{season_id}", response_model=SeasonOut)
 def get_season(season_id: int, db: Session = Depends(get_db)):
-    season = db.get(Season, season_id)
-    if season is None:
-        raise HTTPException(status_code=404, detail="Season not found")
     return get_season_or_404(db, season_id)

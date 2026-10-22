@@ -1,10 +1,10 @@
 from sqlalchemy import create_engine, Table, Column, ForeignKey
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
-from app.core.config import Settings
+from app.core.config import settings
 
 from collections.abc import Generator
 
-engine = create_engine(Settings().database_url)
+engine = create_engine(settings.database_url)
 SessionLocal = sessionmaker(autoflush=False, bind=engine)
 
 class Base(DeclarativeBase):
