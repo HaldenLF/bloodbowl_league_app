@@ -6,7 +6,8 @@ from app.core.database import Base
 
 class Team(Base):
     __tablename__ = "teams"
-    __table_args__ = (UniqueConstraint("season_id", "name", name="uq_teams_season_id_name"),)
+    __table_args__ = (UniqueConstraint("season_id", "name", name="uq_teams_season_id_name"),
+                      UniqueConstraint("season_id", "coach_id", name="uq_teams_season_id_coach_id"),)
     
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     season_id: Mapped[int] = mapped_column(ForeignKey("seasons.id"), nullable=False)
@@ -14,7 +15,8 @@ class Team(Base):
     season: Mapped["Season"] = relationship(back_populates="teams")
     race: Mapped["Race"] = relationship()
     name: Mapped[str] = mapped_column(String(150), nullable=False)
-    coach_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    coach_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    coach: Mapped["User"] = relationship()
     treasury: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     re_rolls: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     assistant_coaches: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
