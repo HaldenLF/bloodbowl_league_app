@@ -16,7 +16,7 @@ from app.schemas.leagues import LeagueCreate, LeagueOut, LeagueCreatedOut, Leagu
 
 
 router = APIRouter(prefix="/leagues", tags=["leagues"])
-NAME_TAKEN = "A league with that name already exists"
+NAME_TAKEN = "You already have a league with that name"
 SearchText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=2, max_length=100), Query()]
 ALREADY_MEMBER = "You are already a member of this league or have a pending request"
 
@@ -45,7 +45,7 @@ def escape_like(value: str) -> str:
 def create_league(payload: LeagueCreate, db: Session = Depends(get_db), 
                   user: User = Depends(require_account_type(AccountType.COMMISSIONER))):
     
-    if db.scalar(select(League).where(League.name == payload.name)) is not None:
+    if db.scalar(select(League).where(League.owner_id == user.id, League.name == payload.name)) is not None:
         raise HTTPException(status_code=409, detail=NAME_TAKEN)
     
     league = League(name=payload.name, join_policy=payload.join_policy, owner_id=user.id)
@@ -75,6 +75,7 @@ def search_leagues(q: SearchText, db: Session = Depends(get_db), user: User = De
     return db.scalars(
         select(League)
         .where(League.join_policy != JoinPolicy.INVITE_ONLY,League.name.ilike(f"%{escape_like(q)}%", escape="\\"),)
+        .options(selectinload(League.owner))
         .order_by(League.name)
         .limit(20)).all()
 

@@ -35,6 +35,7 @@ class LeagueSearchOut(ORMModel):
     id: int
     name: str
     join_policy: JoinPolicy
+    owner: UserPublicOut
 
 
 class MembershipOut(ORMModel):

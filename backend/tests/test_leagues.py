@@ -74,3 +74,25 @@ def test_regenerated_code_replaces_old_one(client, auth, commissioner, coach, ma
     assert client.post("/leagues/join", json={"join_code": league["join_code"]}, headers=auth(coach)).status_code == 404
     joined = client.post("/leagues/join", json={"join_code": new_code}, headers=auth(coach))
     assert joined.json()["status"] == "active"
+
+
+def test_owner_cannot_reuse_own_league_name(client, auth, commissioner):
+    client.post("/leagues", json={"name": "Old World Cup"}, headers=auth(commissioner))
+    response = client.post("/leagues", json={"name": "Old World Cup"}, headers=auth(commissioner))
+    assert response.status_code == 409
+
+
+def test_hidden_league_name_does_not_leak(client, auth, commissioner, make_user):
+    client.post("/leagues", json={"name": "Secret Cup"}, headers=auth(commissioner))
+    other = make_user(account_type=commissioner.account_type)
+    response = client.post("/leagues", json={"name": "Secret Cup"}, headers=auth(other))
+    assert response.status_code == 201
+
+
+def test_search_shows_owner_to_tell_same_names_apart(client, auth, commissioner, coach, make_user):
+    other = make_user(account_type=commissioner.account_type)
+    for owner in (commissioner, other):
+        client.post("/leagues", json={"name": "Open Cup", "join_policy": "open"}, headers=auth(owner))
+    results = client.get("/leagues/search", params={"q": "open cup"}, headers=auth(coach)).json()
+    assert sorted(item["owner"]["id"] for item in results) == sorted([commissioner.id, other.id])
+    assert all("email" not in item["owner"] for item in results)

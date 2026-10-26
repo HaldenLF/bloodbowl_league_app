@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime
-from sqlalchemy import DateTime, func, String, Enum, ForeignKey
+from sqlalchemy import DateTime, func, String, Enum, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.security import generate_join_code
@@ -14,9 +14,10 @@ class JoinPolicy(str, enum.Enum):
 
 class League(Base):
     __tablename__ = "leagues"
+    __table_args__ = (UniqueConstraint("owner_id", "name", name="uq_leagues_owner_id_name"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(150), unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(String(150), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     seasons: Mapped[list["Season"]] = relationship(back_populates="league")
     
