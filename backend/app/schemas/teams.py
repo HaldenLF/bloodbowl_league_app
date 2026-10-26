@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Annotated
-from pydantic import BaseModel, StringConstraints
+from pydantic import BaseModel, StringConstraints, Field
 
 from app.schemas.base import ORMModel
 from app.schemas.users import UserPublicOut
@@ -9,8 +9,12 @@ class TeamCreate(BaseModel):
     race_id: int
     name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=150)]
     coach_id: int | None = None
-    
-    
+
+
+class TreasuryUpdate(BaseModel):
+    treasury: int = Field(ge=0)
+
+
 class TeamOut(ORMModel):
     id: int
     season_id: int

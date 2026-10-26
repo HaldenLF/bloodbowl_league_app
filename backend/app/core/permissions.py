@@ -76,3 +76,10 @@ def get_player_for_member(db: Session, player_id: int, user: User) -> Player:
     if player is None or not is_league_member(db, player.team.season.league, user):
         raise HTTPException(status_code=404, detail=PLAYER_NOT_FOUND)
     return player
+
+
+def get_team_for_manager(db: Session, team_id: int, user: User) -> Team:
+    team = get_team_for_member(db, team_id, user)
+    if not can_manage_league(team.season.league, user):
+        raise HTTPException(status_code=403, detail="Only the league's commissioner can do this")
+    return team

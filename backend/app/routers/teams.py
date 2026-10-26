@@ -15,13 +15,6 @@ router = APIRouter(tags=["teams"])
 NAME_TAKEN = "This season already has a team with that name"
 COACH_TAKEN = "This coach already has a team in this season"
 
-# Temp
-def get_team_or_404(db: Session, team_id: int) -> Team:
-    team = db.get(Team, team_id)
-    if team is None:
-        raise HTTPException(status_code=404, detail="Team not found")
-    return team
-
 
 @router.get("/seasons/{season_id}/teams", response_model=list[TeamOut])
 def list_teams(season_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):

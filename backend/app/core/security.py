@@ -1,11 +1,10 @@
 import secrets
 import jwt
-from fastapi import HTTPException, Security
-from fastapi.security import APIKeyHeader
-from app.core.config import Settings, settings
 from datetime import datetime, timedelta, timezone
 from pwdlib import PasswordHash
 from pwdlib.hashers.argon2 import Argon2Hasher
+
+from app.core.config import settings
 
 JWT_ALGORITHM = "HS256"
 
@@ -44,15 +43,6 @@ def decode_access_token(token: str) -> int | None:
         return int(payload["sub"])
     except (jwt.InvalidTokenError, ValueError):
         return None
-
-api_key_header = APIKeyHeader(name="X-Commissioner=Key", auto_error=False)
-
-# temp
-def require_commissioner(key: str | None = Security(api_key_header)) -> None:
-    if key is None or not secrets.compare_digest(
-        key.encode(), Settings.commissioner_key.encode()
-    ):
-        raise HTTPException(status_code=403, detail="Commissioner access required")
 
 
 def generate_join_code() -> str:
