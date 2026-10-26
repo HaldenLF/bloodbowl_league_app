@@ -13,13 +13,6 @@ from app.schemas.seasons import SeasonCreate, SeasonOut
 router = APIRouter(tags=["seasons"])
 NAME_TAKEN = "This league already has a season with that name"
 
-# temp. remove later
-def get_season_or_404(db: Session, season_id: int) -> Season:
-    season = db.get(Season, season_id)
-    if season is None:
-        raise HTTPException(status_code=404, detail="Season not found")
-    return season
-
 
 @router.get("/leagues/{league_id}/seasons", response_model=list[SeasonOut])
 def list_seasons(league_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
