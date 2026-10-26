@@ -100,3 +100,24 @@ def make_league(client, auth):
         assert response.status_code == 201, response.text
         return response.json()
     return make
+
+
+@pytest.fixture
+def add_member(client, auth):
+    def add(user: User, league: dict) -> None:
+        response = client.post("/leagues/join", json={"join_code": league["join_code"]}, headers=auth(user))
+        assert response.status_code == 200, response.text
+    return add
+
+
+@pytest.fixture
+def make_season(client, auth):
+    def make(owner: User, league: dict, starting_treasury: int = 1_000_000) -> dict:
+        response = client.post(
+            f"/leagues/{league['id']}/seasons",
+            json={"name": f"Season {next(_numbers)}", "format": "16s", "starting_treasury": starting_treasury},
+            headers=auth(owner),
+        )
+        assert response.status_code == 201, response.text
+        return response.json()
+    return make

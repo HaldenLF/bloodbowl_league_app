@@ -20,13 +20,6 @@ NAME_TAKEN = "A league with that name already exists"
 SearchText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=2, max_length=100), Query()]
 ALREADY_MEMBER = "You are already a member of this league or have a pending request"
 
-# Temp
-def get_league_or_404(db: Session, league_id: int) -> League:
-    league = db.get(League, league_id)
-    if league is None:
-        raise HTTPException(status_code=404, detail="League not found")
-    return league
-
 
 def list_memberships(db: Session, league_id: int, status: MembershipStatus) -> list[LeagueMember]:
     return db.scalars(
