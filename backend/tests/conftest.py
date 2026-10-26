@@ -10,6 +10,8 @@ from app.core.database import Base, get_db
 from app.core.security import create_access_token, hash_password
 from app.main import app
 from app.models.users import AccountType, User
+from app.models.races import Race
+from app.models.positions import Position
 
 TEST_PASSWORD = "my-lovely-horse"
 _numbers = itertools.count(1)
@@ -117,6 +119,47 @@ def make_season(client, auth):
             f"/leagues/{league['id']}/seasons",
             json={"name": f"Season {next(_numbers)}", "format": "16s", "starting_treasury": starting_treasury},
             headers=auth(owner),
+        )
+        assert response.status_code == 201, response.text
+        return response.json()
+    return make
+
+
+@pytest.fixture
+def make_race(db):
+    def make() -> Race:
+        race = Race(name=f"Race {next(_numbers)}", tier=1, reroll_cost=50_000)
+        db.add(race)
+        db.flush()
+        return race
+    return make
+
+
+@pytest.fixture
+def race(make_race):
+    return make_race()
+
+
+@pytest.fixture
+def make_position(db):
+    def make(race: Race, cost: int = 50_000, max_allowed: int = 2) -> Position:
+        position = Position(
+            race_id=race.id, name=f"Position {next(_numbers)}", max_allowed=max_allowed, cost=cost,
+            movement=6, strength=3, agility=3, passing=4, armor=9,
+        )
+        db.add(position)
+        db.flush()
+        return position
+    return make
+
+
+@pytest.fixture
+def make_team(client, auth):
+    def make(coach: User, season: dict, race: Race) -> dict:
+        response = client.post(
+            f"/seasons/{season['id']}/teams",
+            json={"race_id": race.id, "name": f"Team {next(_numbers)}"},
+            headers=auth(coach),
         )
         assert response.status_code == 201, response.text
         return response.json()
