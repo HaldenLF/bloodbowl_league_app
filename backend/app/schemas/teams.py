@@ -4,11 +4,17 @@ from pydantic import BaseModel, StringConstraints, Field
 
 from app.schemas.base import ORMModel
 from app.schemas.users import UserPublicOut
+from app.rules.team_extras import TeamExtra
 
 class TeamCreate(BaseModel):
     race_id: int
     name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=150)]
     coach_id: int | None = None
+
+
+class PurchaseCreate(BaseModel):
+    item: TeamExtra
+    quantity: int = Field(default=1, ge=1, le=8)
 
 
 class TreasuryUpdate(BaseModel):

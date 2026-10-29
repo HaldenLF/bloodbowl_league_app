@@ -1,16 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.database import get_db
 from app.core.deps import get_current_user
-from app.core.permissions import can_manage_league, get_season_for_member, get_team_for_member, is_league_member
+from app.core.permissions import can_manage_league, get_season_for_member, get_team_for_member, is_league_member, get_team_for_editor
 from app.core.pagination import PageParams
 from app.models.races import Race
 from app.models.teams import Team
 from app.models.users import User
-from app.schemas.teams import TeamCreate, TeamOut
+from app.models.game_results import GameResult
+from app.models.games import Game
+from app.rules.team_extras import RULES, TeamExtra, unit_price
+from app.schemas.teams import PurchaseCreate, TeamCreate, TeamOut
 
 router = APIRouter(tags=["teams"])
 NAME_TAKEN = "This season already has a team with that name"
@@ -63,3 +66,45 @@ def create_team(season_id: int, payload: TeamCreate, db: Session = Depends(get_d
 @router.get("/teams/{team_id}", response_model=TeamOut)
 def get_team(team_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     return get_team_for_member(db, team_id, user)
+
+
+def has_played(db: Session, team: Team) -> bool:
+    played = (
+        select(Game.id)
+        .join(GameResult, GameResult.game_id == Game.id)
+        .where(or_(Game.home_team_id == team.id, Game.away_team_id == team.id))
+        .limit(1)
+    )
+    return db.scalar(played) is not None
+
+
+@router.post("/teams/{team_id}/purchases", response_model=TeamOut)
+def buy_extra(
+    team_id: int, payload: PurchaseCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+):
+    team = get_team_for_editor(db, team_id, user)
+    db.refresh(team, with_for_update=True)
+
+    rule = RULES[payload.item]
+    played = has_played(db, team)
+    if payload.item is TeamExtra.APOTHECARY and not team.race.apothecary_allowed:
+        raise HTTPException(status_code=409, detail="This team's race cannot have an apothecary")
+    if payload.item is TeamExtra.DEDICATED_FAN and played:
+        raise HTTPException(status_code=409, detail="Dedicated fans can only be bought before the team's first game")
+
+    owned = getattr(team, rule.team_field)
+    if owned + payload.quantity > rule.maximum:
+        raise HTTPException(status_code=409, detail=f"A team can have at most {rule.maximum} of these")
+
+    price = unit_price(payload.item, team.race, team.season.format, played)
+    if price is None:
+        raise HTTPException(status_code=409, detail="This race has no re-roll price for this season's format")
+    cost = price * payload.quantity
+    if team.treasury < cost:
+        raise HTTPException(status_code=409, detail="Not enough gold in the treasury")
+
+    team.treasury -= cost
+    setattr(team, rule.team_field, owned + payload.quantity)
+    db.commit()
+    db.refresh(team)
+    return team
