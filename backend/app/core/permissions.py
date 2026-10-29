@@ -83,3 +83,10 @@ def get_team_for_manager(db: Session, team_id: int, user: User) -> Team:
     if not can_manage_league(team.season.league, user):
         raise HTTPException(status_code=403, detail="Only the league's commissioner can do this")
     return team
+
+
+def get_player_for_editor(db: Session, player_id: int, user: User) -> Player:
+    player = get_player_for_member(db, player_id, user)
+    if not can_edit_team(player.team, user):
+        raise HTTPException(status_code=403, detail="Only the team's coach or the league's commissioner can do this")
+    return player
