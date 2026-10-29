@@ -12,8 +12,10 @@ from app.models.teams import Team
 from app.models.users import User
 from app.models.game_results import GameResult
 from app.models.games import Game
+from app.models.players import Player
 from app.rules.team_extras import RULES, TeamExtra, unit_price
-from app.schemas.teams import PurchaseCreate, TeamCreate, TeamOut
+from app.rules.team_value import team_value
+from app.schemas.teams import PurchaseCreate, TeamCreate, TeamOut, TeamValueOut
 
 router = APIRouter(tags=["teams"])
 NAME_TAKEN = "This season already has a team with that name"
@@ -108,3 +110,15 @@ def buy_extra(
     db.commit()
     db.refresh(team)
     return team
+
+
+@router.get("/teams/{team_id}/value", response_model=TeamValueOut)
+def get_team_value(team_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    team = get_team_for_member(db, team_id, user)
+    players = db.scalars(
+        select(Player)
+        .where(Player.team_id == team.id)
+        .options(selectinload(Player.position), selectinload(Player.advancements))
+    ).all()
+    value = team_value(team, players, team.season.format)
+    return TeamValueOut(players=value.players, re_rolls=value.re_rolls, staff=value.staff, total=value.total)

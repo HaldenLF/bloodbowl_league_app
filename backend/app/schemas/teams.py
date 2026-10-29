@@ -17,6 +17,13 @@ class PurchaseCreate(BaseModel):
     quantity: int = Field(default=1, ge=1, le=8)
 
 
+class TeamValueOut(BaseModel):
+    players: int
+    re_rolls: int
+    staff: int
+    total: int
+
+
 class TreasuryUpdate(BaseModel):
     treasury: int = Field(ge=0)
 
