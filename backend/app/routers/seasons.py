@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.permissions import get_league_for_manager, get_league_for_member, get_season_for_member
 from app.core.deps import get_current_user
+from app.core.pagination import PageParams
 from app.models.seasons import Season
 from app.models.users import User
 from app.schemas.seasons import SeasonCreate, SeasonOut
@@ -15,10 +16,10 @@ NAME_TAKEN = "This league already has a season with that name"
 
 
 @router.get("/leagues/{league_id}/seasons", response_model=list[SeasonOut])
-def list_seasons(league_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def list_seasons(league_id: int,page: PageParams, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     get_league_for_member(db, league_id, user)
     return db.scalars(
-        select(Season).where(Season.league_id == league_id).order_by(Season.id)
+        select(Season).where(Season.league_id == league_id).order_by(Season.id).limit(page.limit).offset(page.offset)
     ).all()
 
 

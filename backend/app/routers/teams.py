@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.core.permissions import can_manage_league, get_season_for_member, get_team_for_member, is_league_member
+from app.core.pagination import PageParams
 from app.models.races import Race
 from app.models.teams import Team
 from app.models.users import User
@@ -17,10 +18,11 @@ COACH_TAKEN = "This coach already has a team in this season"
 
 
 @router.get("/seasons/{season_id}/teams", response_model=list[TeamOut])
-def list_teams(season_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def list_teams(season_id: int, page: PageParams, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     get_season_for_member(db, season_id, user)
     return db.scalars(
-        select(Team).where(Team.season_id == season_id).options(selectinload(Team.coach)).order_by(Team.name)).all()
+        select(Team).where(Team.season_id == season_id).options(selectinload(Team.coach)).order_by(Team.name)
+        .limit(page.limit).offset(page.offset)).all()
 
 
 @router.post("/seasons/{season_id}/teams", response_model=TeamOut, status_code=201)

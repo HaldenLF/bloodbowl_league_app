@@ -10,6 +10,7 @@ from app.core.deps import get_current_user, require_account_type
 from app.core.permissions import get_league_for_member, LEAGUE_NOT_FOUND, get_league_for_manager, get_membership
 from app.core.security import generate_join_code
 from app.core.rate_limit import limiter
+from app.core.pagination import Page, PageParams
 from app.models.league import League, JoinPolicy
 from app.models.league_members import LeagueMember, MembershipStatus
 from app.models.users import AccountType, User
@@ -22,12 +23,14 @@ SearchText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=
 ALREADY_MEMBER = "You are already a member of this league or have a pending request"
 
 
-def list_memberships(db: Session, league_id: int, status: MembershipStatus) -> list[LeagueMember]:
+def list_memberships(db: Session, league_id: int, status: MembershipStatus, page: Page) -> list[LeagueMember]:
     return db.scalars(
         select(LeagueMember)
         .where(LeagueMember.league_id == league_id, LeagueMember.status == status)
         .options(selectinload(LeagueMember.user))
-        .order_by(LeagueMember.joined_at)
+        .order_by(LeagueMember.joined_at, LeagueMember.id)
+        .limit(page.limit)
+        .offset(page.offset)
     ).all()
 
 
@@ -63,13 +66,15 @@ def create_league(payload: LeagueCreate, db: Session = Depends(get_db),
 
 
 @router.get("", response_model=list[LeagueOut])
-def list_my_leagues(db: Session = Depends(get_db), user: User=Depends(get_current_user)):
+def list_my_leagues(page: PageParams, db: Session = Depends(get_db), user: User=Depends(get_current_user)):
     my_active_leagues = select(LeagueMember.league_id).where(
         LeagueMember.user_id == user.id, LeagueMember.status == MembershipStatus.ACTIVE)
     return db.scalars(select(League)
                       .where(or_(League.owner_id == user.id, League.id.in_(my_active_leagues)))
                       .options(selectinload(League.owner))
-                      .order_by(League.name)).all()
+                      .order_by(League.name, League.id)
+                      .limit(page.limit)
+                      .offset(page.offset)).all()
 
 @router.get("/search", response_model=list[LeagueSearchOut])
 @limiter.limit("30/minute")
@@ -128,9 +133,9 @@ def request_to_join(league_id: int, db: Session = Depends(get_db), user: User = 
 
 
 @router.get("/{league_id}/members", response_model=list[MemberOut])
-def list_members(league_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def list_members(league_id: int, page: PageParams, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     get_league_for_member(db, league_id, user)
-    return list_memberships(db, league_id, MembershipStatus.ACTIVE)
+    return list_memberships(db, league_id, MembershipStatus.ACTIVE, page)
 
 
 @router.get("/{league_id}/join-code", response_model=JoinCodeOut)
@@ -148,9 +153,10 @@ def regenerate_join_code(league_id: int, db: Session = Depends(get_db), user: Us
 
 
 @router.get("/{league_id}/join-requests", response_model=list[MemberOut])
-def list_join_requests(league_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def list_join_requests(league_id: int, page: PageParams, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     get_league_for_manager(db, league_id, user)
-    return list_memberships(db, league_id, MembershipStatus.PENDING)
+    return list_memberships(db, league_id, MembershipStatus.PENDING, page)
+
 
 
 @router.post("/{league_id}/join-requests/{user_id}/approve", response_model=MemberOut)
