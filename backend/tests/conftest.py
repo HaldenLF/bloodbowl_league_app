@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import Base, get_db
 from app.core.security import create_access_token, hash_password
+from app.core.rate_limit import limiter
 from app.main import app
 from app.models.users import AccountType, User
 from app.models.races import Race
@@ -27,6 +28,13 @@ def engine():
     Base.metadata.create_all(engine)
     yield engine
     engine.dispose()
+
+
+@pytest.fixture(autouse=True)
+def no_rate_limits():
+    limiter.enabled = False
+    yield
+    limiter.enabled = True
 
 
 @pytest.fixture

@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import StringConstraints
 from sqlalchemy import select, or_
 from sqlalchemy.orm import Session, selectinload
@@ -9,6 +9,7 @@ from app.core.database import get_db
 from app.core.deps import get_current_user, require_account_type
 from app.core.permissions import get_league_for_member, LEAGUE_NOT_FOUND, get_league_for_manager, get_membership
 from app.core.security import generate_join_code
+from app.core.rate_limit import limiter
 from app.models.league import League, JoinPolicy
 from app.models.league_members import LeagueMember, MembershipStatus
 from app.models.users import AccountType, User
@@ -71,7 +72,8 @@ def list_my_leagues(db: Session = Depends(get_db), user: User=Depends(get_curren
                       .order_by(League.name)).all()
 
 @router.get("/search", response_model=list[LeagueSearchOut])
-def search_leagues(q: SearchText, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+@limiter.limit("30/minute")
+def search_leagues(request: Request, q: SearchText, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     return db.scalars(
         select(League)
         .where(League.join_policy != JoinPolicy.INVITE_ONLY,League.name.ilike(f"%{escape_like(q)}%", escape="\\"),)
@@ -81,7 +83,8 @@ def search_leagues(q: SearchText, db: Session = Depends(get_db), user: User = De
 
 
 @router.post("/join", response_model=MembershipOut)
-def join_by_code(payload: JoinByCode, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+@limiter.limit("10/minute")
+def join_by_code(request: Request, payload: JoinByCode, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     league = db.scalar(select(League).where(League.join_code == payload.join_code))
     if league is None:
         raise HTTPException(status_code=404, detail="Invalid join code")
