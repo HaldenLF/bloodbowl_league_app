@@ -21,6 +21,23 @@ export type League = {
 }
 
 
+export type Season = {
+  id: number
+  league_id: number
+  name: string
+  format: '16s' | '7s' | 'dungeon_bowl'
+  is_active: boolean
+  starting_treasury: number
+}
+
+
+export type Member = {
+  user: UserPublic
+  status: 'pending' | 'active'
+  joined_at: string
+}
+
+
 export class ApiError extends Error {
   status: number
 

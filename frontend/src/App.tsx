@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { Link, Route, Routes } from 'react-router'
 import { logOut, type User } from './api.ts'
+import LeaguePage from './LeaguePage.tsx'
 import LoginForm from './LoginForm.tsx'
 import MyLeagues from './MyLeagues.tsx'
 
@@ -17,13 +19,27 @@ export default function App() {
 
   return (
     <main>
-      <p>
-        Logged in as <strong>{user.display_name}</strong> ({user.account_type})
-      </p>
-      <button type="button" onClick={handleLogOut}>
-        Log out
-      </button>
-      <MyLeagues user={user} />
+      <header>
+        Logged in as <strong>{user.display_name}</strong> ({user.account_type}){' '}
+        <button type="button" onClick={handleLogOut}>
+          Log out
+        </button>
+      </header>
+      <Routes>
+        <Route path="/" element={<MyLeagues user={user} />} />
+        <Route path="/leagues/:leagueId" element={<LeaguePage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </main>
+  )
+}
+
+
+function NotFound() {
+  return (
+    <section>
+      <p>Page not found.</p>
+      <Link to="/">Back to my leagues</Link>
+    </section>
   )
 }
