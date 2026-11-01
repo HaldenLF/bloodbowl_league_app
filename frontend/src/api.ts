@@ -5,6 +5,22 @@ export type User = {
   account_type: 'coach' | 'commissioner' | 'super_admin'
 }
 
+
+export type UserPublic = {
+  id: number
+  display_name: string
+}
+
+
+export type League = {
+  id: number
+  name: string
+  join_policy: 'invite_only' | 'open' | 'approval'
+  owner: UserPublic
+  created_at: string
+}
+
+
 export class ApiError extends Error {
   status: number
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { logOut, type User } from './api.ts'
 import LoginForm from './LoginForm.tsx'
+import MyLeagues from './MyLeagues.tsx'
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null)
@@ -22,6 +23,7 @@ export default function App() {
       <button type="button" onClick={handleLogOut}>
         Log out
       </button>
+      <MyLeagues user={user} />
     </main>
   )
 }
