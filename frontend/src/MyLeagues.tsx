@@ -17,7 +17,7 @@ export default function MyLeagues({ user }: Props) {
     <section>
       <h2>My leagues</h2>
       {error && <p role="alert">{error}</p>}
-      {loading && <p>Loading…</p>}
+      {loading && !leagues && <p>Loading…</p>}
       {leagues?.length === 0 && <p>You are not in any leagues yet.</p>}
       {leagues && leagues.length > 0 && (
         <ul>

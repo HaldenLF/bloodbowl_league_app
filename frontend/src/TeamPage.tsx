@@ -1,13 +1,23 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router'
-import { type Player, type Race, type Team, type TeamValue } from './api.ts'
+import { postJson, type League, type Player, type Race, type Season, type Team, type TeamValue, type User } from './api.ts'
 import { gold, target } from './format.ts'
+import HirePlayerForm from './HirePlayerForm.tsx'
 import { useApi } from './useApi.ts'
 
-export default function TeamPage() {
+type Props = {
+  user: User
+}
+
+export default function TeamPage({ user }: Props) {
   const { teamId } = useParams()
-  const team = useApi<Team>(`/teams/${teamId}`)
-  const players = useApi<Player[]>(`/teams/${teamId}/players`)
-  const value = useApi<TeamValue>(`/teams/${teamId}/value`)
+  const [reloads, setReloads] = useState(0)
+  const [actionError, setActionError] = useState<string | null>(null)
+  const team = useApi<Team>(`/teams/${teamId}`, reloads)
+  const players = useApi<Player[]>(`/teams/${teamId}/players`, reloads)
+  const value = useApi<TeamValue>(`/teams/${teamId}/value`, reloads)
+  const season = useApi<Season>(team.data ? `/seasons/${team.data.season_id}` : null)
+  const league = useApi<League>(season.data ? `/leagues/${season.data.league_id}` : null)
 
   if (team.error) {
     return (
@@ -21,6 +31,23 @@ export default function TeamPage() {
     return <p>Loading…</p>
   }
   const t = team.data
+  const canEdit = t.coach.id === user.id || league.data?.owner.id === user.id
+
+  function reload() {
+    setReloads((count) => count + 1)
+  }
+
+  async function fire(player: Player) {
+    const label = player.name ? `#${player.number} ${player.name}` : `#${player.number}`
+    if (!window.confirm(`Fire ${label}? They leave the roster for good, and there is no refund.`)) return
+    setActionError(null)
+    try {
+      await postJson(`/players/${player.id}/fire`, {})
+      reload()
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Something went wrong')
+    }
+  }
 
   return (
     <section>
@@ -32,6 +59,7 @@ export default function TeamPage() {
 
       <h3>Roster</h3>
       {players.error && <p role="alert">{players.error}</p>}
+      {actionError && <p role="alert">{actionError}</p>}
       {players.data?.length === 0 && <p>No players yet.</p>}
       {players.data && players.data.length > 0 && (
         <table>
@@ -49,6 +77,7 @@ export default function TeamPage() {
               <th>Cas</th>
               <th>MVP</th>
               <th>Notes</th>
+              {canEdit && <th />}
             </tr>
           </thead>
           <tbody>
@@ -66,11 +95,19 @@ export default function TeamPage() {
                 <td>{player.casualties}</td>
                 <td>{player.mvps}</td>
                 <td>{player.missing_next_game ? 'Misses next game' : ''}</td>
+                {canEdit && (
+                  <td>
+                    <button type="button" onClick={() => void fire(player)}>
+                      Fire
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
         </table>
       )}
+      {canEdit && <HirePlayerForm teamId={t.id} raceId={t.race_id} onHired={reload} />}
 
       <h3>Staff and extras</h3>
       <ul>

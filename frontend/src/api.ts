@@ -71,6 +71,12 @@ export type Position = {
   cost: number
 }
 
+
+export type RaceDetail = Race & {
+  positions: Position[]
+}
+
+
 export type Player = {
   id: number
   team_id: number

@@ -31,7 +31,7 @@ export default function App() {
         <Route path="/" element={<MyLeagues user={user} />} />
         <Route path="/leagues/:leagueId" element={<LeaguePage user={user} />} />
         <Route path="/seasons/:seasonId" element={<SeasonPage user={user} />} />
-        <Route path="/teams/:teamId" element={<TeamPage />} />
+        <Route path="/teams/:teamId" element={<TeamPage user={user} />} />
         <Route path="*" element={<NotFound />} />
 
       </Routes>
