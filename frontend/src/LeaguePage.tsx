@@ -32,7 +32,8 @@ export default function LeaguePage() {
       <ul>
         {seasons.data?.map((season) => (
           <li key={season.id}>
-            {season.name} ({season.format}){season.is_active ? '' : ' — finished'}
+            <Link to={`/seasons/${season.id}`}>{season.name}</Link> ({season.format})
+            {season.is_active ? '' : ' — finished'}
           </li>
         ))}
       </ul>

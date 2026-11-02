@@ -4,6 +4,8 @@ import { logOut, type User } from './api.ts'
 import LeaguePage from './LeaguePage.tsx'
 import LoginForm from './LoginForm.tsx'
 import MyLeagues from './MyLeagues.tsx'
+import SeasonPage from './SeasonPage.tsx'
+import TeamPage from './TeamPage.tsx'
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null)
@@ -28,6 +30,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<MyLeagues user={user} />} />
         <Route path="/leagues/:leagueId" element={<LeaguePage />} />
+        <Route path="/seasons/:seasonId" element={<SeasonPage />} />
+        <Route path="/teams/:teamId" element={<TeamPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </main>

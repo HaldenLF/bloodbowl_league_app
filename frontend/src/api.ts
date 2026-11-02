@@ -38,6 +38,62 @@ export type Member = {
 }
 
 
+export type Team = {
+  id: number
+  season_id: number
+  race_id: number
+  name: string
+  coach: UserPublic
+  treasury: number
+  re_rolls: number
+  assistant_coaches: number
+  cheerleaders: number
+  apothecary: number
+  dedicated_fans: number
+  created_at: string
+}
+
+export type Race = {
+  id: number
+  name: string
+}
+
+export type Position = {
+  id: number
+  name: string
+  max_allowed: number
+  movement: number
+  strength: number
+  agility: number
+  passing: number
+  armor: number
+  skill_list: string | null
+  cost: number
+}
+
+export type Player = {
+  id: number
+  team_id: number
+  number: number
+  name: string | null
+  touchdowns: number
+  casualties: number
+  mvps: number
+  niggling_injuries: number
+  missing_next_game: boolean
+  dead: boolean
+  fired: boolean
+  position: Position
+}
+
+export type TeamValue = {
+  players: number
+  re_rolls: number
+  staff: number
+  total: number
+}
+
+
 export class ApiError extends Error {
   status: number
 
