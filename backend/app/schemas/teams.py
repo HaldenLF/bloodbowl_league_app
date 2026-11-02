@@ -17,6 +17,14 @@ class PurchaseCreate(BaseModel):
     quantity: int = Field(default=1, ge=1, le=8)
 
 
+class ShopItemOut(BaseModel):
+    item: TeamExtra
+    owned: int
+    maximum: int
+    price: int | None
+    unavailable_reason: str | None
+
+
 class TeamValueOut(BaseModel):
     players: int
     re_rolls: int

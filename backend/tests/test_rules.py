@@ -2,7 +2,7 @@ import pytest
 
 from app.models.races import Race
 from app.models.seasons import LeagueFormat
-from app.rules.team_extras import TeamExtra, unit_price
+from app.rules.team_extras import TeamExtra, unavailable_reason, unit_price
 
 RACE = Race(name="Test", reroll_cost=60_000, reroll_cost_7s=100_000)
 
@@ -32,3 +32,14 @@ def test_staff_prices_are_fixed(extra, price):
 def test_missing_reroll_price_gives_no_price():
     race = Race(name="Unpriced", reroll_cost=None)
     assert unit_price(TeamExtra.RE_ROLL, race, LeagueFormat.SIXTEENS, has_played=False) is None
+
+
+def test_apothecary_unavailable_for_races_without_one():
+    race = Race(name="No Apothecary", apothecary_allowed=False)
+    assert unavailable_reason(TeamExtra.APOTHECARY, race, has_played=False) is not None
+    assert unavailable_reason(TeamExtra.APOTHECARY, Race(name="Apothecary", apothecary_allowed=True), has_played=False) is None
+
+
+def test_dedicated_fans_unavailable_once_the_team_has_played():
+    assert unavailable_reason(TeamExtra.DEDICATED_FAN, RACE, has_played=False) is None
+    assert unavailable_reason(TeamExtra.DEDICATED_FAN, RACE, has_played=True) is not None

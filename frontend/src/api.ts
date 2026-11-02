@@ -92,6 +92,16 @@ export type Player = {
   position: Position
 }
 
+
+export type ShopItem = {
+  item: 're_roll' | 'assistant_coach' | 'cheerleader' | 'apothecary' | 'dedicated_fan'
+  owned: number
+  maximum: number
+  price: number | null
+  unavailable_reason: string | null
+}
+
+
 export type TeamValue = {
   players: number
   re_rolls: number

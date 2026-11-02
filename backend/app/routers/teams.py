@@ -13,9 +13,10 @@ from app.models.users import User
 from app.models.game_results import GameResult
 from app.models.games import Game
 from app.models.players import Player
-from app.rules.team_extras import RULES, TeamExtra, unit_price
+from app.rules.team_extras import RULES, unavailable_reason, unit_price
 from app.rules.team_value import team_value
-from app.schemas.teams import PurchaseCreate, TeamCreate, TeamOut, TeamValueOut
+from app.schemas.teams import PurchaseCreate, ShopItemOut, TeamCreate, TeamOut, TeamValueOut
+
 
 router = APIRouter(tags=["teams"])
 NAME_TAKEN = "This season already has a team with that name"
@@ -80,6 +81,22 @@ def has_played(db: Session, team: Team) -> bool:
     return db.scalar(played) is not None
 
 
+@router.get("/teams/{team_id}/shop", response_model=list[ShopItemOut])
+def get_shop(team_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    team = get_team_for_member(db, team_id, user)
+    played = has_played(db, team)
+    return [
+        ShopItemOut(
+            item=extra,
+            owned=getattr(team, rule.team_field),
+            maximum=rule.maximum,
+            price=unit_price(extra, team.race, team.season.format, played),
+            unavailable_reason=unavailable_reason(extra, team.race, played),
+        )
+        for extra, rule in RULES.items()
+    ]
+
+
 @router.post("/teams/{team_id}/purchases", response_model=TeamOut)
 def buy_extra(
     team_id: int, payload: PurchaseCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)
@@ -89,10 +106,10 @@ def buy_extra(
 
     rule = RULES[payload.item]
     played = has_played(db, team)
-    if payload.item is TeamExtra.APOTHECARY and not team.race.apothecary_allowed:
-        raise HTTPException(status_code=409, detail="This team's race cannot have an apothecary")
-    if payload.item is TeamExtra.DEDICATED_FAN and played:
-        raise HTTPException(status_code=409, detail="Dedicated fans can only be bought before the team's first game")
+    reason = unavailable_reason(payload.item, team.race, played)
+    if reason is not None:
+        raise HTTPException(status_code=409, detail=reason)
+
 
     owned = getattr(team, rule.team_field)
     if owned + payload.quantity > rule.maximum:

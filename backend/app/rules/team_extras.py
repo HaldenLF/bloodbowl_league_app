@@ -36,3 +36,11 @@ def unit_price(extra: TeamExtra, race: Race, season_format: LeagueFormat, has_pl
     if base is None:
         return None
     return base * 2 if has_played else base
+
+
+def unavailable_reason(extra: TeamExtra, race: Race, has_played: bool) -> str | None:
+    if extra is TeamExtra.APOTHECARY and not race.apothecary_allowed:
+        return "This team's race cannot have an apothecary"
+    if extra is TeamExtra.DEDICATED_FAN and has_played:
+        return "Dedicated fans can only be bought before the team's first game"
+    return None

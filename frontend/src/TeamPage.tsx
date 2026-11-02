@@ -4,6 +4,8 @@ import { postJson, type League, type Player, type Race, type Season, type Team, 
 import { gold, target } from './format.ts'
 import HirePlayerForm from './HirePlayerForm.tsx'
 import { useApi } from './useApi.ts'
+import TeamExtras from './TeamExtras.tsx'
+
 
 type Props = {
   user: User
@@ -116,14 +118,7 @@ export default function TeamPage({ user }: Props) {
         />
       )}
 
-      <h3>Staff and extras</h3>
-      <ul>
-        <li>Re-rolls: {t.re_rolls}</li>
-        <li>Assistant coaches: {t.assistant_coaches}</li>
-        <li>Cheerleaders: {t.cheerleaders}</li>
-        <li>Apothecary: {t.apothecary ? 'Yes' : 'No'}</li>
-        <li>Dedicated fans: {t.dedicated_fans}</li>
-      </ul>
+      <TeamExtras teamId={t.id} treasury={t.treasury} canEdit={canEdit} reloadKey={reloads} onBought={reload} />
 
       <h3>Team value</h3>
       {value.error && <p role="alert">{value.error}</p>}

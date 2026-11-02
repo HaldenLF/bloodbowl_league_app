@@ -115,3 +115,34 @@ def test_client_cannot_name_a_price(client, auth, coach, shop):
     body = {"item": "cheerleader", "price": 1}
     response = client.post(f"/teams/{team['id']}/purchases", json=body, headers=auth(coach))
     assert response.json()["treasury"] == 190_000
+
+
+def shop_items(client, auth, team, user):
+    response = client.get(f"/teams/{team['id']}/shop", headers=auth(user))
+    assert response.status_code == 200
+    return {entry["item"]: entry for entry in response.json()}
+
+
+def test_shop_lists_every_extra_with_its_price(client, auth, coach, shop):
+    league, season, team, opponent, race, buy = shop
+    buy("cheerleader", 2)
+    items = shop_items(client, auth, team, coach)
+    assert set(items) == {"re_roll", "assistant_coach", "cheerleader", "apothecary", "dedicated_fan"}
+    assert items["re_roll"]["price"] == race.reroll_cost
+    assert items["cheerleader"] == {
+        "item": "cheerleader", "owned": 2, "maximum": 6, "price": 10_000, "unavailable_reason": None,
+    }
+
+
+def test_shop_reflects_the_first_game(client, auth, db, coach, shop):
+    league, season, team, opponent, race, buy = shop
+    play_game(db, season, team, opponent)
+    items = shop_items(client, auth, team, coach)
+    assert items["re_roll"]["price"] == 2 * race.reroll_cost
+    assert items["dedicated_fan"]["unavailable_reason"] is not None
+
+
+def test_shop_is_hidden_from_outsiders(client, auth, make_user, shop):
+    league, season, team, opponent, race, buy = shop
+    outsider = make_user(AccountType.COACH)
+    assert client.get(f"/teams/{team['id']}/shop", headers=auth(outsider)).status_code == 404
