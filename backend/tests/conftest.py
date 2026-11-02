@@ -1,5 +1,4 @@
 import itertools
-from os import name
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine

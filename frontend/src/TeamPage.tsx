@@ -116,7 +116,6 @@ export default function TeamPage({ user }: Props) {
         />
       )}
 
-
       <h3>Staff and extras</h3>
       <ul>
         <li>Re-rolls: {t.re_rolls}</li>

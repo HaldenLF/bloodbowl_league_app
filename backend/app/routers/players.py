@@ -9,8 +9,9 @@ from app.core.permissions import get_player_for_editor, get_player_for_member, g
 from app.models.players import Player
 from app.models.positions import Position
 from app.models.users import User
-from app.schemas.players import PlayerCreate, PlayerOut, PlayerUpdate
 from app.rules.roster import MIN_PLAYERS_FOR_A_GAME, is_journeyman, journeymen_allowed, lowest_free_number
+from app.schemas.players import PlayerCreate, PlayerOut, PlayerUpdate
+
 
 
 router = APIRouter(tags=["players"])
