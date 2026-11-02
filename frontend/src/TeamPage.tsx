@@ -107,7 +107,15 @@ export default function TeamPage({ user }: Props) {
           </tbody>
         </table>
       )}
-      {canEdit && <HirePlayerForm teamId={t.id} raceId={t.race_id} onHired={reload} />}
+      {canEdit && (
+        <HirePlayerForm
+          teamId={t.id}
+          raceId={t.race_id}
+          availablePlayers={players.data?.filter((player) => !player.missing_next_game).length ?? 0}
+          onHired={reload}
+        />
+      )}
+
 
       <h3>Staff and extras</h3>
       <ul>

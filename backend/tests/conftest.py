@@ -1,4 +1,5 @@
 import itertools
+from os import name
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -150,9 +151,9 @@ def race(make_race):
 
 @pytest.fixture
 def make_position(db):
-    def make(race: Race, cost: int = 50_000, max_allowed: int = 2) -> Position:
+    def make(race: Race, cost: int = 50_000, max_allowed: int = 2, name: str | None = None) -> Position:
         position = Position(
-            race_id=race.id, name=f"Position {next(_numbers)}", max_allowed=max_allowed, cost=cost,
+            race_id=race.id, name=name or f"Position {next(_numbers)}", max_allowed=max_allowed, cost=cost,
             movement=6, strength=3, agility=3, passing=4, armor=9,
         )
         db.add(position)

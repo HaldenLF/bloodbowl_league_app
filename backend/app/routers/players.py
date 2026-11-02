@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError
 
@@ -10,6 +10,8 @@ from app.models.players import Player
 from app.models.positions import Position
 from app.models.users import User
 from app.schemas.players import PlayerCreate, PlayerOut, PlayerUpdate
+from app.rules.roster import MIN_PLAYERS_FOR_A_GAME, is_journeyman, journeymen_allowed, lowest_free_number
+
 
 router = APIRouter(tags=["players"])
 ON_ROSTER = (Player.dead.is_(False), Player.fired.is_(False))
@@ -45,23 +47,34 @@ def hire_player(team_id: int, payload: PlayerCreate, db: Session = Depends(get_d
     if position.race_id != team.race_id:
         raise HTTPException(status_code=422, detail="That position is not available to this team's race")
 
-    roster = select(Player).where(Player.team_id == team.id, *ON_ROSTER)
-    hired = db.scalar(select(func.count()).select_from(roster.where(Player.position_id == position.id).subquery()))
-    if hired >= position.max_allowed:
+    roster = db.scalars(select(Player).where(Player.team_id == team.id, *ON_ROSTER)).all()
+    if is_journeyman(position):
+        available = sum(1 for player in roster if not player.missing_next_game)
+        if not journeymen_allowed(available):
+            raise HTTPException(
+                status_code=409,
+                detail=f"Journeymen can only be hired while fewer than {MIN_PLAYERS_FOR_A_GAME} players are available",
+            )
+    if sum(1 for player in roster if player.position_id == position.id) >= position.max_allowed:
         raise HTTPException(status_code=409, detail=f"This team already has the maximum of {position.max_allowed} {position.name}")
-    if db.scalar(roster.where(Player.number == payload.number)) is not None:
-        raise number_taken(payload.number)
+
+    taken = {player.number for player in roster}
+    number = lowest_free_number(taken) if payload.number is None else payload.number
+    if number is None:
+        raise HTTPException(status_code=409, detail="Every shirt number is already taken")
+    if number in taken:
+        raise number_taken(number)
     if team.treasury < position.cost:
         raise HTTPException(status_code=409, detail="Not enough gold in the treasury")
 
     team.treasury -= position.cost
-    player = Player(team_id=team.id, position_id=position.id, number=payload.number, name=payload.name)
+    player = Player(team_id=team.id, position_id=position.id, number=number, name=payload.name)
     db.add(player)
     try:
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise number_taken(payload.number)
+        raise number_taken(number)
     db.refresh(player)
     return player
 
