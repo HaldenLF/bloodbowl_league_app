@@ -1,12 +1,22 @@
 import { Link, useParams } from 'react-router'
-import { type Season, type Team } from './api.ts'
+import { type Season, type Team, type User } from './api.ts'
 import { gold } from './format.ts'
 import { useApi } from './useApi.ts'
+import { useState } from  'react'
+import CreateTeamForm from './CreateTeamForm.tsx'
 
-export default function SeasonPage() {
+
+type Props = {
+  user: User
+}
+
+
+export default function SeasonPage({ user }: Props) {
   const { seasonId } = useParams()
   const season = useApi<Season>(`/seasons/${seasonId}`)
-  const teams = useApi<Team[]>(`/seasons/${seasonId}/teams`)
+  const [reloads, setReloads] = useState(0)
+  const teams = useApi<Team[]>(`/seasons/${seasonId}/teams`, reloads)
+
 
   if (season.error) {
     return (
@@ -19,6 +29,9 @@ export default function SeasonPage() {
   if (!season.data) {
     return <p>Loading…</p>
   }
+
+  const hasTeam = teams.data?.some((team) => team.coach.id === user.id) ?? true
+
 
   return (
     <section>
@@ -38,6 +51,7 @@ export default function SeasonPage() {
           </li>
         ))}
       </ul>
+      {!hasTeam && <CreateTeamForm seasonId={season.data.id} onCreated={() => setReloads((count) => count + 1)} />}
     </section>
   )
 }

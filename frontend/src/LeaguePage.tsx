@@ -1,11 +1,18 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router'
-import { type League, type Member, type Season } from './api.ts'
+import { type League, type Member, type Season, type User } from './api.ts'
+import CreateSeasonForm from './CreateSeasonForm.tsx'
 import { useApi } from './useApi.ts'
 
-export default function LeaguePage() {
+type Props = {
+  user: User
+}
+
+export default function LeaguePage({ user }: Props) {
   const { leagueId } = useParams()
+  const [reloads, setReloads] = useState(0)
   const league = useApi<League>(`/leagues/${leagueId}`)
-  const seasons = useApi<Season[]>(`/leagues/${leagueId}/seasons`)
+  const seasons = useApi<Season[]>(`/leagues/${leagueId}/seasons`, reloads)
   const members = useApi<Member[]>(`/leagues/${leagueId}/members`)
 
   if (league.error) {
@@ -37,6 +44,9 @@ export default function LeaguePage() {
           </li>
         ))}
       </ul>
+      {league.data.owner.id === user.id && (
+        <CreateSeasonForm leagueId={league.data.id} onCreated={() => setReloads((r) => r + 1)} />
+      )}
 
       <h3>Members</h3>
       {members.error && <p role="alert">{members.error}</p>}
