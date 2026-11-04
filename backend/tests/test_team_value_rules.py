@@ -55,7 +55,7 @@ def test_linemen_of_other_races_cost_full_price():
 def test_team_value_breakdown():
     team = Team(race=HUMANS, re_rolls=2, assistant_coaches=1, cheerleaders=2, apothecary=1)
     players = [make_player(50_000), make_player(85_000)]
-    value = team_value(team, players, LeagueFormat.SIXTEENS)
+    value = team_value(team, players, LeagueFormat.ELEVENS)
     assert (value.players, value.re_rolls, value.staff) == (135_000, 100_000, 80_000)
     assert value.total == 315_000
 
@@ -68,7 +68,7 @@ def test_unavailable_players_are_not_counted():
         make_player(50_000, fired=True),
         make_player(50_000, missing_next_game=True),
     ]
-    assert team_value(team, players, LeagueFormat.SIXTEENS).players == 50_000
+    assert team_value(team, players, LeagueFormat.ELEVENS).players == 50_000
 
 
 def test_sevens_rerolls_use_the_sevens_price():

@@ -8,11 +8,11 @@ RACE = Race(name="Test", reroll_cost=60_000, reroll_cost_7s=100_000)
 
 
 def test_reroll_price_comes_from_the_race():
-    assert unit_price(TeamExtra.RE_ROLL, RACE, LeagueFormat.SIXTEENS, has_played=False) == 60_000
+    assert unit_price(TeamExtra.RE_ROLL, RACE, LeagueFormat.ELEVENS, has_played=False) == 60_000
 
 
 def test_reroll_price_doubles_once_the_team_has_played():
-    assert unit_price(TeamExtra.RE_ROLL, RACE, LeagueFormat.SIXTEENS, has_played=True) == 120_000
+    assert unit_price(TeamExtra.RE_ROLL, RACE, LeagueFormat.ELEVENS, has_played=True) == 120_000
 
 
 def test_sevens_uses_the_sevens_reroll_price():
@@ -26,12 +26,12 @@ def test_sevens_uses_the_sevens_reroll_price():
     (TeamExtra.DEDICATED_FAN, 5_000),
 ])
 def test_staff_prices_are_fixed(extra, price):
-    assert unit_price(extra, RACE, LeagueFormat.SIXTEENS, has_played=True) == price
+    assert unit_price(extra, RACE, LeagueFormat.ELEVENS, has_played=True) == price
 
 
 def test_missing_reroll_price_gives_no_price():
     race = Race(name="Unpriced", reroll_cost=None)
-    assert unit_price(TeamExtra.RE_ROLL, race, LeagueFormat.SIXTEENS, has_played=False) is None
+    assert unit_price(TeamExtra.RE_ROLL, race, LeagueFormat.ELEVENS, has_played=False) is None
 
 
 def test_apothecary_unavailable_for_races_without_one():

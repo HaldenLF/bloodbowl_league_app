@@ -39,7 +39,7 @@ export type Season = {
   id: number
   league_id: number
   name: string
-  format: '16s' | '7s' | 'dungeon_bowl'
+  format: '11s' | '7s' | 'dungeon_bowl'
   is_active: boolean
   starting_treasury: number
 }

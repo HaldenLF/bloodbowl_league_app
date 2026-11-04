@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 
 class LeagueFormat(str, enum.Enum):
-    SIXTEENS = "16s"
+    ELEVENS = "11s"
     SEVENS = "7s"
     DUNGEON_BOWL = "dungeon_bowl"
     

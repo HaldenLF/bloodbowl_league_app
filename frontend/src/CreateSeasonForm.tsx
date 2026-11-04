@@ -9,7 +9,7 @@ type Props = {
 
 export default function CreateSeasonForm({ leagueId, onCreated }: Props) {
   const [name, setName] = useState('')
-  const [format, setFormat] = useState<Season['format']>('16s')
+  const [format, setFormat] = useState<Season['format']>('11s')
   const [startingTreasury, setStartingTreasury] = useState(1_000_000)
 
   const { run, busy, error } = useAction(async () => {
@@ -33,7 +33,7 @@ export default function CreateSeasonForm({ leagueId, onCreated }: Props) {
       <label>
         Format
         <select value={format} onChange={(e) => setFormat(e.target.value as Season['format'])}>
-          <option value="16s">16s</option>
+          <option value="11s">11s</option>
           <option value="7s">7s</option>
           <option value="dungeon_bowl">Dungeon Bowl</option>
         </select>

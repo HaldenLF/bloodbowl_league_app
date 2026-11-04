@@ -1,6 +1,6 @@
 from app.models.users import AccountType
 
-SEASON = {"name": "Season One", "format": "16s", "starting_treasury": 1_000_000}
+SEASON = {"name": "Season One", "format": "11s", "starting_treasury": 1_000_000}
 
 
 def test_owner_creates_season(client, auth, commissioner, make_league):
@@ -64,3 +64,13 @@ def test_seasons_require_login(client, commissioner, make_league, make_season):
     season = make_season(commissioner, league)
     assert client.get(f"/leagues/{league['id']}/seasons").status_code == 401
     assert client.get(f"/seasons/{season['id']}").status_code == 401
+
+
+def test_formats_are_11s_7s_and_dungeon_bowl(client, auth, commissioner, make_league):
+    league = make_league(commissioner)
+    url = f"/leagues/{league['id']}/seasons"
+    for number, season_format in enumerate(["11s", "7s", "dungeon_bowl"]):
+        body = {**SEASON, "name": f"Season {number}", "format": season_format}
+        assert client.post(url, json=body, headers=auth(commissioner)).json()["format"] == season_format
+    old = {**SEASON, "name": "Old format", "format": "16s"}
+    assert client.post(url, json=old, headers=auth(commissioner)).status_code == 422

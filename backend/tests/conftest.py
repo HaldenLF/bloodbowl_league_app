@@ -125,7 +125,7 @@ def make_season(client, auth):
     def make(owner: User, league: dict, starting_treasury: int = 1_000_000) -> dict:
         response = client.post(
             f"/leagues/{league['id']}/seasons",
-            json={"name": f"Season {next(_numbers)}", "format": "16s", "starting_treasury": starting_treasury},
+            json={"name": f"Season {next(_numbers)}", "format": "11s", "starting_treasury": starting_treasury},
             headers=auth(owner),
         )
         assert response.status_code == 201, response.text
