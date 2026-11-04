@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
-import { postJson, type League, type Player, type Race, type Season, type Team, type TeamValue, type User } from './api.ts'
-import { gold, target } from './format.ts'
+import { postJson, type League, type Player, type Race, type RosterPlayer, type Season, type Team, type TeamValue, type User } from './api.ts'
+import { gold } from './format.ts'
 import EditPlayerForm from './EditPlayerForm.tsx'
 import HirePlayerForm from './HirePlayerForm.tsx'
+import RosterTable from './RosterTable.tsx'
 import { useApi } from './useApi.ts'
 import TeamExtras from './TeamExtras.tsx'
 
@@ -18,7 +19,7 @@ export default function TeamPage({ user }: Props) {
   const [actionError, setActionError] = useState<string | null>(null)
   const [editing, setEditing] = useState<Player | null>(null)
   const team = useApi<Team>(`/teams/${teamId}`, reloads)
-  const players = useApi<Player[]>(`/teams/${teamId}/players`, reloads)
+  const players = useApi<RosterPlayer[]>(`/teams/${teamId}/players`, reloads)
   const value = useApi<TeamValue>(`/teams/${teamId}/value`, reloads)
   const season = useApi<Season>(team.data ? `/seasons/${team.data.season_id}` : null)
   const league = useApi<League>(season.data ? `/leagues/${season.data.league_id}` : null)
@@ -57,9 +58,6 @@ export default function TeamPage({ user }: Props) {
     <section>
       <Link to={`/seasons/${t.season_id}`}>← Season</Link>
       <h2>{t.name}</h2>
-      <p>
-        <RaceName raceId={t.race_id} /> · Coach: {t.coach.display_name} · Treasury: {gold(t.treasury)}
-      </p>
 
       <h3>Roster</h3>
       {players.error && <p role="alert">{players.error}</p>}
@@ -67,51 +65,12 @@ export default function TeamPage({ user }: Props) {
       {players.data?.length === 0 && <p>No players yet.</p>}
       {players.data && players.data.length > 0 && (
         <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Position</th>
-              <th>MA</th>
-              <th>ST</th>
-              <th>AG</th>
-              <th>PA</th>
-              <th>AV</th>
-              <th>TD</th>
-              <th>Cas</th>
-              <th>MVP</th>
-              <th>Notes</th>
-              {canEdit && <th />}
-            </tr>
-          </thead>
-          <tbody>
-            {players.data.map((player) => (
-              <tr key={player.id}>
-                <td>{player.number}</td>
-                <td>{player.name ?? '—'}</td>
-                <td>{player.position.name}</td>
-                <td>{player.position.movement}</td>
-                <td>{player.position.strength}</td>
-                <td>{target(player.position.agility)}</td>
-                <td>{target(player.position.passing)}</td>
-                <td>{target(player.position.armor)}</td>
-                <td>{player.touchdowns}</td>
-                <td>{player.casualties}</td>
-                <td>{player.mvps}</td>
-                <td>{player.missing_next_game ? 'Misses next game' : ''}</td>
-                {canEdit && (
-                  <td>
-                    <button type="button" onClick={() => setEditing(player)}>
-                      Edit
-                    </button>{' '}
-                    <button type="button" onClick={() => void fire(player)}>
-                      Fire
-                    </button>
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
+              <RosterTable
+                players={players.data}
+                canEdit={canEdit}
+                onEdit={setEditing}
+                onFire={(player) => void fire(player)}
+              />
         </table>
       )}
       {canEdit && editing && (
@@ -133,21 +92,34 @@ export default function TeamPage({ user }: Props) {
           onHired={reload}
         />
       )}
-
-      <TeamExtras teamId={t.id} treasury={t.treasury} canEdit={canEdit} reloadKey={reloads} onBought={reload} />
-
-      <h3>Team value</h3>
-      {value.error && <p role="alert">{value.error}</p>}
-      {value.data && (
-        <ul>
-          <li>Players: {gold(value.data.players)}</li>
-          <li>Re-rolls: {gold(value.data.re_rolls)}</li>
-          <li>Staff: {gold(value.data.staff)}</li>
-          <li>
-            <strong>Total: {gold(value.data.total)}</strong>
-          </li>
-        </ul>
-      )}
+        <h3>Team info</h3>
+        <table>
+          <tbody>
+            <tr>
+              <th scope="row">Team Name</th>
+              <td>{t.name}</td>
+            </tr>
+            <tr>
+              <th scope="row">Coach</th>
+              <td>{t.coach.display_name}</td>
+            </tr>
+            <tr>
+              <th scope="row">Team Race</th>
+              <td>
+                <RaceName raceId={t.race_id} />
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Treasury</th>
+              <td>{gold(t.treasury)}</td>
+            </tr>
+            <tr>
+              <th scope="row">TV</th>
+              <td>{value.data ? gold(value.data.total) : (value.error ?? '…')}</td>
+            </tr>
+          </tbody>
+        </table>
+        <TeamExtras teamId={t.id} treasury={t.treasury} canEdit={canEdit} reloadKey={reloads} onBought={reload} />
     </section>
   )
 }

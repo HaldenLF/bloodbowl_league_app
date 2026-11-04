@@ -101,7 +101,9 @@ export type Player = {
   team_id: number
   number: number
   name: string | null
+  completions: number
   touchdowns: number
+  interceptions: number
   casualties: number
   mvps: number
   niggling_injuries: number
@@ -109,6 +111,12 @@ export type Player = {
   dead: boolean
   fired: boolean
   position: Position
+}
+
+
+export type RosterPlayer = Player & {
+  spp: number
+  value: number
 }
 
 
