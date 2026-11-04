@@ -5,13 +5,19 @@ import LeaguePage from './LeaguePage.tsx'
 import LoginForm from './LoginForm.tsx'
 import MyLeagues from './MyLeagues.tsx'
 import SeasonPage from './SeasonPage.tsx'
+import SignupForm from './SignupForm.tsx'
 import TeamPage from './TeamPage.tsx'
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null)
 
   if (user === null) {
-    return <LoginForm onLoggedIn={setUser} />
+    return (
+      <Routes>
+        <Route path="/signup" element={<SignupForm onLoggedIn={setUser} />} />
+        <Route path="*" element={<LoginForm onLoggedIn={setUser} />} />
+      </Routes>
+    )
   }
 
   function handleLogOut() {

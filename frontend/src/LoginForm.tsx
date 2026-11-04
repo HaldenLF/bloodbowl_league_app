@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router'
 import { logIn, type User } from './api.ts'
 
 type Props = {
@@ -45,6 +46,9 @@ export default function LoginForm({ onLoggedIn }: Props) {
       <button type="submit" disabled={busy}>
         {busy ? 'Logging in…' : 'Log in'}
       </button>
+      <p>
+        New here? <Link to="/signup">Create an account</Link>
+      </p>
     </form>
   )
 }
