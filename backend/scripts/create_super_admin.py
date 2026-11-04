@@ -1,8 +1,6 @@
 from getpass import getpass
-
 from pydantic import ValidationError
-from sqlalchemy import select
-
+from app.core.accounts import display_name_taken, email_taken
 from app.core.database import SessionLocal
 from app.core.security import hash_password
 from app.models.users import AccountType, User
@@ -27,8 +25,11 @@ def main():
         return
 
     with SessionLocal() as db:
-        if db.scalar(select(User).where(User.email == details.email)) is not None:
+        if email_taken(db, details.email):
             print("An account with that email already exists.")
+            return
+        if display_name_taken(db, details.display_name):
+            print("That display name is already taken.")
             return
         db.add(User(
             email=details.email,

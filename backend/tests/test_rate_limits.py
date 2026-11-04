@@ -23,9 +23,9 @@ def test_login_is_limited_per_client(client, coach, rate_limits):
 
 def test_register_is_limited_per_client(client, rate_limits):
     for number in range(10):
-        body = {"email": f"new{number}@example.com", "display_name": "New", "password": "long-enough-pw", "account_type": "coach"}
+        body = {"email": f"new{number}@example.com", "display_name": f"New {number}", "password": "long-enough-pw", "account_type": "coach"}
         assert client.post("/auth/register", json=body).status_code == 201
-    body = {"email": "one-more@example.com", "display_name": "New", "password": "long-enough-pw", "account_type": "coach"}
+    body = {"email": "one-more@example.com", "display_name": "One More", "password": "long-enough-pw", "account_type": "coach"}
     assert client.post("/auth/register", json=body).status_code == 429
 
 

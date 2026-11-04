@@ -33,9 +33,9 @@ Updated 2026-11-04.
 
 ## Next
 
-1. [ ] **Search and join leagues** from the app, following each league's join policy
+1. [x] **Search and join leagues** from the app, following each league's join policy
        (open: join now; approval: request; invite only: code needed).
-2. [ ] **Rename the 16s format to 11s.** Migration to rename the database enum value
+2. [x] **Rename the 16s format to 11s.** Migration to rename the database enum value
        (`SIXTEENS` to `ELEVENS`), plus the API, tests and season form.
 3. [ ] **Coach name at signup** with a random Blood Bowl / orcish name suggested, and a button to
        roll a new one. The coach can keep it or type their own.

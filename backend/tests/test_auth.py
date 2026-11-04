@@ -1,4 +1,5 @@
 import jwt
+import pytest
 from datetime import datetime, timedelta, timezone
 
 from app.core.config import settings
@@ -75,3 +76,33 @@ def test_token_of_disabled_account_stops_working(client, coach, auth, db):
     coach.is_active = False
     db.flush()
     assert client.get("/auth/me", headers=headers).status_code == 401
+
+
+def test_coach_names_are_unique_ignoring_case(client):
+    client.post("/auth/register", json=NEW_USER)
+    copycat = {**NEW_USER, "email": "copycat@example.com", "display_name": "NEW COACH"}
+    response = client.post("/auth/register", json=copycat)
+    assert response.status_code == 409
+    assert response.json()["detail"] == "That coach name is already taken"
+
+
+@pytest.mark.parametrize("name", ["Gorbag Skullcrusha", "Ug'Nak", "Grim-Tusk 2", "  Spaces Trimmed  "])
+def test_good_coach_names_are_accepted(client, name):
+    response = client.post("/auth/register", json={**NEW_USER, "display_name": name})
+    assert response.status_code == 201
+    assert response.json()["display_name"] == name.strip()
+
+
+@pytest.mark.parametrize("name", [
+    "Al",
+    "x" * 33,
+    "Two  Spaces",
+    "-Leading",
+    "Trailing'",
+    "<script>",
+    "Zoë",
+    "Name\nNewline",
+])
+def test_bad_coach_names_are_rejected(client, name):
+    response = client.post("/auth/register", json={**NEW_USER, "display_name": name})
+    assert response.status_code == 422

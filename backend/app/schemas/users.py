@@ -7,9 +7,17 @@ from app.models.users import AccountType
 from app.schemas.base import ORMModel
 
 
+COACH_NAME_PATTERN = r"^[A-Za-z0-9]+([ '-][A-Za-z0-9]+)*$"
+
+
+CoachName = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=3, max_length=32, pattern=COACH_NAME_PATTERN)
+]
+
+
 class UserCreate(BaseModel):
     email: EmailStr
-    display_name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+    display_name: CoachName
     password: str = Field(min_length=8, max_length=128, repr=False)
     account_type: Literal["coach", "commissioner"]
 

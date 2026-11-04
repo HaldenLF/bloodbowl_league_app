@@ -1,9 +1,7 @@
 import enum
 from datetime import datetime
-
-from sqlalchemy import Boolean, DateTime, Enum, String, func
+from sqlalchemy import Boolean, DateTime, Enum, String, func, Index
 from sqlalchemy.orm import Mapped, mapped_column
-
 from app.core.database import Base
 
 
@@ -25,3 +23,6 @@ class User(Base):
     )
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+Index("uq_users_display_name_lower", func.lower(User.display_name), unique=True)

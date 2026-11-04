@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-
+from app.core.accounts import display_name_taken, email_taken
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.core.security import create_access_token, hash_password, verify_password, DUMMY_HASH
@@ -15,13 +15,17 @@ from app.schemas.users import TokenOut, UserCreate, UserOut
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 EMAIL_TAKEN = "An account with that email already exists"
+NAME_TAKEN = "That coach name is already taken"
 
 
 @router.post("/register", response_model=UserOut, status_code=201)
 @limiter.limit("10/hour")
 def register(request: Request, payload: UserCreate, db: Session = Depends(get_db)):
-    if db.scalar(select(User).where(User.email == payload.email)) is not None:
+    if email_taken(db, payload.email):
         raise HTTPException(status_code=409, detail=EMAIL_TAKEN)
+    if display_name_taken(db, payload.display_name):
+        raise HTTPException(status_code=409, detail=NAME_TAKEN)
+
 
     user = User(
         email=payload.email,
@@ -34,7 +38,7 @@ def register(request: Request, payload: UserCreate, db: Session = Depends(get_db
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(status_code=409, detail=EMAIL_TAKEN)
+        raise HTTPException(status_code=409, detail="That email or coach name is already in use")
     db.refresh(user)
     return user
 
