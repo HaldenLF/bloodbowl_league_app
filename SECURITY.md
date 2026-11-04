@@ -49,8 +49,11 @@ repository's Security tab, which sends a private report to the maintainer.
 - Clients can never set money or stats. Teams start with the season's starting treasury. Hiring
   cost comes from the database. Request schemas are explicit allowlists, so unknown fields are
   ignored.
-- Hiring locks the team row (`SELECT ... FOR UPDATE`), so simultaneous requests can't overspend
-  the treasury or duplicate a jersey number.
+- Hiring, buying extras and editing players lock the team row (`SELECT ... FOR UPDATE`), so
+  simultaneous requests can't overspend the treasury or duplicate a shirt number. A partial unique
+  index on (team, number) for players still on the roster is the final safety net.
+- Prices and game rules are worked out by the API, never sent by the client. The shop endpoint and
+  the purchase endpoint use the same rule functions, so the price shown is the price charged.
 
 ### Abuse limits
 - Rate limits per client IP: login 5 per minute, register 10 per hour, join by code 10 per minute,
@@ -66,9 +69,21 @@ repository's Security tab, which sends a private report to the maintainer.
   `Referrer-Policy: no-referrer`. In production, `Strict-Transport-Security` and a
   `Content-Security-Policy` of `default-src 'none'` are added.
 
+### Frontend
+- The access token is kept in memory only, never in `localStorage`, `sessionStorage` or a cookie
+  that scripts can read. Reloading the page logs the user out until refresh tokens exist.
+- All text is rendered through React, which escapes it. `dangerouslySetInnerHTML`, `innerHTML` and
+  `eval` are never used, and nothing is written to the browser console.
+- Join codes are shown only to the league's commissioner and are never put in a URL.
+- Hiding a button is a convenience, not a lock: every action is checked again by the API.
+- The development server listens on `127.0.0.1` only, never on all network interfaces, and reaches
+  the API through a same-origin proxy.
+
 ### Dependencies and tests
-- Every dependency version is pinned. `pip-audit -r backend/requirements.txt` must be clean before
-  deploying. New releases are adopted once they are at least two weeks old.
+- Every dependency version is pinned, including exact npm versions (`save-exact`) with a committed
+  `package-lock.json`. `pip-audit -r backend/requirements.txt` and `npm audit` must both be clean
+  before deploying (both clean on 2026-11-04). New releases are adopted once they are at least two
+  weeks old.
 - The pytest suite runs against a separate `_test` database and covers the permission rules above:
   who gets `401`, `403` and `404` for each kind of request.
 
@@ -82,6 +97,10 @@ repository's Security tab, which sends a private report to the maintainer.
   worker processes, and don't stop a slow attack spread over many IPs against one account.
 - **The `/admin` console and its audit log are not built yet**, and commissioner treasury changes
   are not yet audited.
+- **Display names are not unique yet**, so one user could copy another coach's name in member
+  lists. Planned fix: unique names (ignoring case) with a limited character set, chosen at signup.
+- **The database URL is a plain string in the settings**, so the database password would appear
+  if the settings were ever printed or logged. Planned fix: store it as `SecretStr`.
 - **The development setup is for development only.** `docker-compose.yml` contains a dev database
   password, and the app connects as the database superuser. Postgres is bound to `127.0.0.1`.
 
@@ -97,6 +116,12 @@ repository's Security tab, which sends a private report to the maintainer.
       `--forwarded-allow-ips` set to the proxy, so rate limits see real client IPs.
 - [ ] More than one worker process means rate limits use a shared store (Redis).
 - [ ] No `--reload` in production.
-- [ ] `pip-audit -r backend/requirements.txt` is clean and `pytest` passes.
+- [ ] `database_url` is a `SecretStr`.
+- [ ] The frontend is served over HTTPS with its own strict `Content-Security-Policy`:
+      `default-src 'self'`, no inline or `eval` scripts, `connect-src` limited to the API origin,
+      `frame-ancestors 'none'`. Fonts and images are self-hosted (no third-party CDNs), which keeps
+      the policy strict and doesn't share visitors' IP addresses with font providers.
+- [ ] `pip-audit -r backend/requirements.txt` and `npm audit` are clean, `pytest` passes, and
+      `npm run build` and `npm run lint` are clean.
 - [ ] `alembic upgrade head` run, then `python -m scripts.create_super_admin` once.
 - [ ] Database backups configured.
