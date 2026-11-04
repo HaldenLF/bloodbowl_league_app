@@ -21,6 +21,20 @@ export type League = {
 }
 
 
+export type LeagueSearchResult = {
+  id: number
+  name: string
+  join_policy: League['join_policy']
+  owner: UserPublic
+}
+
+export type Membership = {
+  league_id: number
+  status: 'pending' | 'active'
+  joined_at: string
+}
+
+
 export type Season = {
   id: number
   league_id: number

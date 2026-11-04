@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { type League, type User } from './api.ts'
 import JoinLeagueForm from './JoinLeagueForm.tsx'
+import LeagueSearch from './LeagueSearch.tsx'
 import { useApi } from './useApi.ts'
 
 type Props = {
@@ -11,7 +12,10 @@ type Props = {
 export default function MyLeagues({ user }: Props) {
   const [reloads, setReloads] = useState(0)
   const { data: leagues, error, loading } = useApi<League[]>('/leagues', reloads)
-
+  
+function reload() {
+  setReloads((count) => count + 1)
+}
 
   return (
     <section>
@@ -29,7 +33,8 @@ export default function MyLeagues({ user }: Props) {
           ))}
         </ul>
       )}
-      <JoinLeagueForm onJoined={() => setReloads((count) => count + 1)} />
+      <JoinLeagueForm onJoined={reload} />
+      <LeagueSearch memberOf={new Set(leagues?.map((league) => league.id))} onJoined={reload} />
     </section>
   )
 }
