@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { type League, type Member, type Season, type User } from './api.ts'
+import CommissionerPanel from './CommissionerPanel.tsx'
 import CreateSeasonForm from './CreateSeasonForm.tsx'
 import { useApi } from './useApi.ts'
 
@@ -13,7 +14,7 @@ export default function LeaguePage({ user }: Props) {
   const [reloads, setReloads] = useState(0)
   const league = useApi<League>(`/leagues/${leagueId}`)
   const seasons = useApi<Season[]>(`/leagues/${leagueId}/seasons`, reloads)
-  const members = useApi<Member[]>(`/leagues/${leagueId}/members`)
+  const members = useApi<Member[]>(`/leagues/${leagueId}/members`, reloads)
 
   if (league.error) {
     return (
@@ -25,6 +26,11 @@ export default function LeaguePage({ user }: Props) {
   }
   if (!league.data) {
     return <p>Loading…</p>
+  }
+  const isOwner = league.data.owner.id === user.id
+
+  function reload() {
+    setReloads((count) => count + 1)
   }
 
   return (
@@ -44,10 +50,7 @@ export default function LeaguePage({ user }: Props) {
           </li>
         ))}
       </ul>
-      {league.data.owner.id === user.id && (
-        <CreateSeasonForm leagueId={league.data.id} onCreated={() => setReloads((r) => r + 1)} />
-      )}
-
+      {isOwner && <CreateSeasonForm leagueId={league.data.id} onCreated={reload} />}
       <h3>Members</h3>
       {members.error && <p role="alert">{members.error}</p>}
       <ul>
@@ -55,6 +58,7 @@ export default function LeaguePage({ user }: Props) {
           <li key={member.user.id}>{member.user.display_name}</li>
         ))}
       </ul>
+      {isOwner && <CommissionerPanel leagueId={league.data.id} onMembersChanged={reload} />}
     </section>
   )
 }

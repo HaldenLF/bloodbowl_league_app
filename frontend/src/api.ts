@@ -38,6 +38,11 @@ export type Member = {
 }
 
 
+export type JoinCode = {
+  join_code: string
+}
+
+
 export type Team = {
   id: number
   season_id: number
