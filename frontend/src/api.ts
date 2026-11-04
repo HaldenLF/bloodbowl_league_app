@@ -149,12 +149,22 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
 }
 
 
-export function postJson<T>(path: string, body: unknown): Promise<T> {
+function sendJson<T>(method: 'POST' | 'PATCH', path: string, body: unknown): Promise<T> {
   return api<T>(path, {
-    method: 'POST',
+    method,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
+}
+
+
+export function postJson<T>(path: string, body: unknown): Promise<T> {
+  return sendJson<T>('POST', path, body)
+}
+
+
+export function patchJson<T>(path: string, body: unknown): Promise<T> {
+  return sendJson<T>('PATCH', path, body)
 }
 
 

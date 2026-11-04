@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { postJson, type League, type Player, type Race, type Season, type Team, type TeamValue, type User } from './api.ts'
 import { gold, target } from './format.ts'
+import EditPlayerForm from './EditPlayerForm.tsx'
 import HirePlayerForm from './HirePlayerForm.tsx'
 import { useApi } from './useApi.ts'
 import TeamExtras from './TeamExtras.tsx'
@@ -15,6 +16,7 @@ export default function TeamPage({ user }: Props) {
   const { teamId } = useParams()
   const [reloads, setReloads] = useState(0)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [editing, setEditing] = useState<Player | null>(null)
   const team = useApi<Team>(`/teams/${teamId}`, reloads)
   const players = useApi<Player[]>(`/teams/${teamId}/players`, reloads)
   const value = useApi<TeamValue>(`/teams/${teamId}/value`, reloads)
@@ -99,6 +101,9 @@ export default function TeamPage({ user }: Props) {
                 <td>{player.missing_next_game ? 'Misses next game' : ''}</td>
                 {canEdit && (
                   <td>
+                    <button type="button" onClick={() => setEditing(player)}>
+                      Edit
+                    </button>{' '}
                     <button type="button" onClick={() => void fire(player)}>
                       Fire
                     </button>
@@ -108,6 +113,17 @@ export default function TeamPage({ user }: Props) {
             ))}
           </tbody>
         </table>
+      )}
+      {canEdit && editing && (
+        <EditPlayerForm
+          key={editing.id}
+          player={editing}
+          onSaved={() => {
+            setEditing(null)
+            reload()
+          }}
+          onCancel={() => setEditing(null)}
+        />
       )}
       {canEdit && (
         <HirePlayerForm
