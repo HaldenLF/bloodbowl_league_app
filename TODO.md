@@ -22,10 +22,12 @@ Updated 2026-11-04.
 - [x] Permissions on every endpoint: outsiders get 404, members without the right get 403.
 - [x] Hardening: rate limits, production mode (docs off, CORS allowlist, security headers),
       pagination, pinned and audited dependencies.
-- [x] 134 automated tests.
+- [x] Coach names: unique (ignoring case), 3 to 32 safe characters.
+- [x] 148 automated tests.
 
 ### Frontend (React, TypeScript, Vite)
 - [x] Login and logout. The token is kept in memory only.
+- [x] Signup with a random orcish coach name suggested.
 - [x] My leagues, join by code, league page (seasons and members).
 - [x] Season page, team page (roster, staff and extras, team value).
 - [x] Create season, create team, hire, fire, edit player, buy extras.
@@ -37,7 +39,7 @@ Updated 2026-11-04.
        (open: join now; approval: request; invite only: code needed).
 2. [x] **Rename the 16s format to 11s.** Migration to rename the database enum value
        (`SIXTEENS` to `ELEVENS`), plus the API, tests and season form.
-3. [ ] **Coach name at signup** with a random Blood Bowl / orcish name suggested, and a button to
+3. [x] **Coach name at signup** with a random Blood Bowl / orcish name suggested, and a button to
        roll a new one. The coach can keep it or type their own.
        - Names are unique (ignoring case), 3 to 32 characters, letters, digits, spaces,
          hyphens and apostrophes only, so no one can copy another coach's name.

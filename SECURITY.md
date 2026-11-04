@@ -22,6 +22,10 @@ repository's Security tab, which sends a private report to the maintainer.
 - Public signup can create **coach** or **commissioner** accounts only. The super admin is created
   once by the host with `python -m scripts.create_super_admin`, which never stores the password in
   a file or shell history.
+- Coach names (display names) are unique ignoring case, enforced by a unique database index on
+  `lower(display_name)`. They are 3 to 32 letters or digits, with words joined by a single space,
+  hyphen or apostrophe, so no one can pose as another coach with a look-alike name, extra spaces
+  or invisible characters.
 
 ### Tokens
 - Access tokens are JWTs signed with HS256 and a secret of at least 32 characters, loaded from
@@ -97,8 +101,6 @@ repository's Security tab, which sends a private report to the maintainer.
   worker processes, and don't stop a slow attack spread over many IPs against one account.
 - **The `/admin` console and its audit log are not built yet**, and commissioner treasury changes
   are not yet audited.
-- **Display names are not unique yet**, so one user could copy another coach's name in member
-  lists. Planned fix: unique names (ignoring case) with a limited character set, chosen at signup.
 - **The database URL is a plain string in the settings**, so the database password would appear
   if the settings were ever printed or logged. Planned fix: store it as `SecretStr`.
 - **The development setup is for development only.** `docker-compose.yml` contains a dev database
