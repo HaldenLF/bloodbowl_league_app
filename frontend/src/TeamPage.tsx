@@ -64,14 +64,12 @@ export default function TeamPage({ user }: Props) {
       {actionError && <p role="alert">{actionError}</p>}
       {players.data?.length === 0 && <p>No players yet.</p>}
       {players.data && players.data.length > 0 && (
-        <table>
-              <RosterTable
-                players={players.data}
-                canEdit={canEdit}
-                onEdit={setEditing}
-                onFire={(player) => void fire(player)}
-              />
-        </table>
+        <RosterTable
+          players={players.data}
+          canEdit={canEdit}
+          onEdit={setEditing}
+          onFire={(player) => void fire(player)}
+        />
       )}
       {canEdit && editing && (
         <EditPlayerForm
