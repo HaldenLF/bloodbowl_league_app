@@ -27,7 +27,7 @@ export default function LoginForm({ onLoggedIn }: Props) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h1>Log in</h1>
+      <h1>Blood Bowl League</h1>
       <label>
         Email
         <input type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} />

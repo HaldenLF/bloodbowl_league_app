@@ -13,10 +13,14 @@ export default function App() {
 
   if (user === null) {
     return (
-      <Routes>
-        <Route path="/signup" element={<SignupForm onLoggedIn={setUser} />} />
-        <Route path="*" element={<LoginForm onLoggedIn={setUser} />} />
-      </Routes>
+      <div className="auth-screen">
+        <div className="auth-box">
+          <Routes>
+            <Route path="/signup" element={<SignupForm onLoggedIn={setUser} />} />
+            <Route path="*" element={<LoginForm onLoggedIn={setUser} />} />
+          </Routes>
+        </div>
+      </div>
     )
   }
 
