@@ -8,10 +8,12 @@ from app.core.deps import get_current_user
 from app.core.permissions import get_player_for_editor, get_player_for_member, get_team_for_editor, get_team_for_member
 from app.models.players import Player
 from app.models.positions import Position
+from app.models.races import Race
 from app.models.users import User
 from app.rules.roster import MIN_PLAYERS_FOR_A_GAME, is_journeyman, journeymen_allowed, lowest_free_number
-from app.schemas.players import PlayerCreate, PlayerOut, PlayerUpdate
-
+from app.rules.spp import star_player_points
+from app.rules.team_value import player_value
+from app.schemas.players import PlayerCreate, PlayerOut, PlayerUpdate, RosterPlayerOut
 
 
 router = APIRouter(tags=["players"])
@@ -27,13 +29,25 @@ def require_on_roster(player: Player) -> None:
         raise HTTPException(status_code=409, detail="This player is no longer on the roster")
 
 
-@router.get("/teams/{team_id}/players", response_model=list[PlayerOut])
+def roster_line(player: Player, race: Race) -> RosterPlayerOut:
+    return RosterPlayerOut(
+        **PlayerOut.model_validate(player).model_dump(),
+        spp=star_player_points(player),
+        value=player_value(player, race),
+    )
+
+
+@router.get("/teams/{team_id}/players", response_model=list[RosterPlayerOut])
 def list_players(team_id: int, include_former: bool = False, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    get_team_for_member(db, team_id, user)
+    team = get_team_for_member(db, team_id, user)
     query = select(Player).where(Player.team_id == team_id)
     if not include_former:
         query = query.where(*ON_ROSTER)
-    return db.scalars(query.options(selectinload(Player.position)).order_by(Player.number)).all()
+    players = db.scalars(
+        query.options(selectinload(Player.position), selectinload(Player.advancements)).order_by(Player.number)
+    ).all()
+    return [roster_line(player, team.race) for player in players]
+
 
 
 @router.post("/teams/{team_id}/players", response_model=PlayerOut, status_code=201)

@@ -105,3 +105,14 @@ def test_members_can_read_roster_outsiders_cannot(client, auth, coach, commissio
     missing = client.get("/players/999999", headers=auth(outsider))
     assert hidden.status_code == 404
     assert hidden.json() == missing.json()
+
+
+def test_roster_shows_spp_and_player_value(client, auth, coach, db, setup):
+    league, season, team, position = setup
+    player = hire(client, auth, coach, team, position, 7).json()
+    stored = db.get(Player, player["id"])
+    stored.touchdowns, stored.mvps = 2, 1
+    db.flush()
+    [line] = client.get(f"/teams/{team['id']}/players", headers=auth(coach)).json()
+    assert line["spp"] == 2 * 3 + 4
+    assert line["value"] == 50_000

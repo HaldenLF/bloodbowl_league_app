@@ -41,3 +41,8 @@ class PlayerOut(ORMModel):
     fired: bool
     created_at: datetime
     position: PositionOut
+
+
+class RosterPlayerOut(PlayerOut):
+    spp: int
+    value: int
