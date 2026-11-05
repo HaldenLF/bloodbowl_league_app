@@ -32,7 +32,7 @@ export default function RosterTable({ players, canEdit, onEdit, onFire }: Props)
                 <th>MVP</th>
                 <th>SPP</th>
                 <th>Total Value</th>
-                {canEdit && <th />}
+                {canEdit && <th className="no-print" />}
             </tr>
             </thead>
             <tbody>
@@ -57,7 +57,7 @@ export default function RosterTable({ players, canEdit, onEdit, onFire }: Props)
                 <td>{player.spp}</td>
                 <td>{gold(player.value)}</td>
                 {canEdit && (
-                    <td>
+                    <td className="no-print">
                     <button type="button" onClick={() => onEdit(player)}>
                         Edit
                     </button>{' '}

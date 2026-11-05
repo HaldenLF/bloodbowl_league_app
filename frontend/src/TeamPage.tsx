@@ -56,8 +56,13 @@ export default function TeamPage({ user }: Props) {
 
   return (
     <section>
-      <Link to={`/seasons/${t.season_id}`}>← Season</Link>
+      <Link to={`/seasons/${t.season_id}`} className="no-print">
+        ← Season
+      </Link>
       <h2>{t.name}</h2>
+      <button type="button" onClick={() => window.print()}>
+        Print roster
+      </button>
 
       <h3>Roster</h3>
       {players.error && <p role="alert">{players.error}</p>}

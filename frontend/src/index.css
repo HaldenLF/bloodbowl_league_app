@@ -182,3 +182,40 @@ select {
 .auth-box button[type='submit'] {
   margin-top: 8px;
 }
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  :root {
+    font-size: 10px;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  #root {
+    max-width: none;
+    padding: 0;
+  }
+
+  header,
+  form,
+  button,
+  .no-print {
+    display: none;
+  }
+
+  .table-scroll {
+    overflow: visible;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  tr {
+    break-inside: avoid;
+  }
+}

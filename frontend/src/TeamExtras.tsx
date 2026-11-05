@@ -59,7 +59,7 @@ export default function TeamExtras({ teamId, treasury, canEdit, reloadKey, onBou
               <th>Item</th>
               <th>Owned</th>
               <th>Price</th>
-              {canEdit && <th />}
+              {canEdit && <th className="no-print" />}
             </tr>
           </thead>
           <tbody>
@@ -73,7 +73,7 @@ export default function TeamExtras({ teamId, treasury, canEdit, reloadKey, onBou
                   </td>
                   <td>{entry.price === null ? '—' : gold(entry.price)}</td>
                   {canEdit && (
-                    <td>
+                    <td className="no-print">
                       {reason ? (
                         <small>{reason}</small>
                       ) : (
