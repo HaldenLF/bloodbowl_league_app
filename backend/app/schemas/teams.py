@@ -4,6 +4,7 @@ from pydantic import BaseModel, StringConstraints, Field
 
 from app.schemas.base import ORMModel
 from app.schemas.users import UserPublicOut
+from app.models.seasons import LeagueFormat
 from app.rules.team_extras import TeamExtra
 
 class TeamCreate(BaseModel):
@@ -49,3 +50,25 @@ class TeamOut(ORMModel):
     apothecary: int
     dedicated_fans: int
     created_at: datetime
+
+
+class NamedRef(ORMModel):
+    id: int
+    name: str
+
+
+class MyTeamSeasonOut(ORMModel):
+    id: int
+    name: str
+    format: LeagueFormat
+    is_active: bool
+    league: NamedRef
+
+
+class MyTeamOut(ORMModel):
+    id: int
+    name: str
+    race: NamedRef
+    season: MyTeamSeasonOut
+    treasury: int
+    team_value: int

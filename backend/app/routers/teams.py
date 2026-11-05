@@ -8,6 +8,7 @@ from app.core.deps import get_current_user
 from app.core.permissions import can_manage_league, get_season_for_member, get_team_for_member, is_league_member, get_team_for_editor
 from app.core.pagination import PageParams
 from app.models.races import Race
+from app.models.seasons import Season
 from app.models.teams import Team
 from app.models.users import User
 from app.models.game_results import GameResult
@@ -15,12 +16,40 @@ from app.models.games import Game
 from app.models.players import Player
 from app.rules.team_extras import RULES, unavailable_reason, unit_price
 from app.rules.team_value import team_value
-from app.schemas.teams import PurchaseCreate, ShopItemOut, TeamCreate, TeamOut, TeamValueOut
+from app.schemas.teams import PurchaseCreate, ShopItemOut, TeamCreate, TeamOut, TeamValueOut, MyTeamOut
 
 
 router = APIRouter(tags=["teams"])
 NAME_TAKEN = "This season already has a team with that name"
 COACH_TAKEN = "This coach already has a team in this season"
+
+
+@router.get("/me/teams", response_model=list[MyTeamOut])
+def my_teams(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    teams = db.scalars(
+        select(Team)
+        .join(Team.season)
+        .where(Team.coach_id == user.id)
+        .options(
+            selectinload(Team.race),
+            selectinload(Team.season).selectinload(Season.league),
+            selectinload(Team.players).selectinload(Player.position),
+            selectinload(Team.players).selectinload(Player.advancements),
+        )
+        .order_by(Season.is_active.desc(), Team.id.desc())
+    ).all()
+    return [
+        MyTeamOut(
+            id=team.id,
+            name=team.name,
+            race=team.race,
+            season=team.season,
+            treasury=team.treasury,
+            team_value=team_value(team, team.players, team.season.format).total,
+        )
+        for team in teams
+    ]
+
 
 
 @router.get("/seasons/{season_id}/teams", response_model=list[TeamOut])
