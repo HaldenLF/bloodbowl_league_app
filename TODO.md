@@ -74,24 +74,45 @@ C. [ ] **Roster in the full Print Roster layout**: 16 numbered slots and SP1-SP3
        need games or advancements stay blank until those exist.
 D. [ ] **Save as PDF**: `GET /teams/{id}/roster.pdf` built by the API with ReportLab, one A4
        landscape page, member check (outsiders 404), rate limited, names escaped.
-E. [ ] **Home page** (the dashboard), in sections:
-       - **Recent games**: a snapshot of the latest results (and injuries) in my leagues.
-       - **My teams**: a short info card for each of my teams (race, league, season, TV, record),
-         linking to its roster.
-       - **Current leagues and tournaments** I'm in, with a link to each table.
-       - **FAQ**: how the app works (joining a league, hiring, treasury, printing a roster).
-         Static text written in the app, no database needed.
-       - **Commissioners** also see snapshots of the leagues they run, pending join requests
-         and issues raised by coaches.
-       Layout first, with "No games yet" / "No tournaments yet" until games and results (item 7)
-       and tournaments (item 16) exist.
-F. [ ] **Issues raised by coaches** (new): a coach reports an issue to their league's commissioner,
-       who sees and closes it. Needs its own small backend with permission checks.
+E. [ ] **Three home pages**, one per kind of visitor:
+       - **Public** (not logged in): what the site is, sign up / log in, the FAQ, and what has
+         happened in public leagues (see G). No access to the leagues themselves.
+       - **Logged in**: one page in sections. "My teams" (a card per team: race, league, season,
+         TV, record, link to the roster), "My leagues and tournaments" (link to each table) and
+         "Recent games" involving me. Commissioners also get "Leagues I run": snapshots, pending
+         join requests and issues raised by coaches. A commissioner who also plays sees both.
+       - **Super admin**: home is the admin console (item 13).
+       Sections show "No games yet" / "No tournaments yet" until items 7 and 16 exist.
+F. [ ] **FAQ**: how the app works (joining a league, hiring, treasury, printing a roster). Static
+       text in the app, no database. Claude drafts it, the owner edits the wording.
+G. [ ] **Public leagues.** Changes the "outsiders get 404" rule on purpose, so:
+       - New league setting `visibility`: private (default) or public. Only the commissioner
+         changes it. Invite-only leagues can never be public.
+       - The public sees, for public leagues only: league name, season tables, results, team names
+         and rosters (players, stats, skills, SPP, value, TV, re-rolls and staff).
+       - Never public: coach names, emails, join codes, join requests, treasury.
+       - Separate endpoints under `/public/...` with their own allowlist Out schemas, no login,
+         rate limited. Tests prove private leagues still 404 and hidden fields never appear.
+H. [ ] **Issues raised by coaches** (new): a coach reports an issue to their league's commissioner,
+       who sees and closes it. A disputed result is the usual case. Own small backend with
+       permission checks.
+I. [ ] **Account page** (burger menu): change coach name, email and password; delete the account.
+       Teams of a deleted account stay, shown as "former coach".
+J. [ ] **Invite links** that create an account on arrival and join the league. The link carries a
+       single-use invite token, never the league's join code.
+K. [ ] **Notifications in the app**: join request approved, result to confirm, issue raised.
+       Email later, after email verification (item 15).
+L. [ ] **Mobile layout**, especially the 18-column roster (sideways scroll or a card per player).
 
+## After that
 ## After that
 
 7. [ ] **Games and results**: fixtures (GameList), scores, casualties, SPP, MVP, injuries
        (miss next game, niggling, dead), dedicated fans +/-, winnings.
+       One coach enters the result, the opponent confirms it; a disagreement becomes an issue (H)
+       for the commissioner.
+7b. [ ] **Season lifecycle**: start, finish and archive a season. Past teams and redraft (11)
+        depend on a finished season.
 8. [ ] **League table** from the results.
 9. [ ] **Skills and advancements**: spend SPP, primary or secondary, random or chosen, with value
        changes feeding team value.
@@ -117,4 +138,9 @@ F. [ ] **Issues raised by coaches** (new): a coach reports an issue to their lea
 17. [ ] **Real-time updates** with WebSockets (short-lived ticket, never a token in the URL).
 
 ## Before deploying
-See the checklist in SECURITY.md. Nothing goes on a public server until every box there is ticked.
+- An "unofficial fan site" notice: Blood Bowl is a Games Workshop trademark; not endorsed by GW.
+  No GW logos or artwork, including the site logo.
+- A short privacy policy: what is stored, what is public, how to delete an account.
+- Decide whether search engines may index public league pages (`robots.txt` / `noindex`).
+
+See also the checklist in SECURITY.md. Nothing goes on a public server until every box there is ticked.

@@ -125,5 +125,7 @@ repository's Security tab, which sends a private report to the maintainer.
       the policy strict and doesn't share visitors' IP addresses with font providers.
 - [ ] `pip-audit -r backend/requirements.txt` and `npm audit` are clean, `pytest` passes, and
       `npm run build` and `npm run lint` are clean.
+- [ ] Public league pages (if built) show only allowlisted fields: never coach names, emails,
+      join codes or treasuries, and private leagues still return `404`.
 - [ ] `alembic upgrade head` run, then `python -m scripts.create_super_admin` once.
 - [ ] Database backups configured.
