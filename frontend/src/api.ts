@@ -45,6 +45,28 @@ export type Season = {
 }
 
 
+export type NamedRef = {
+  id: number
+  name: string
+}
+
+
+export type MyTeam = {
+  id: number
+  name: string
+  race: NamedRef
+  season: {
+    id: number
+    name: string
+    format: Season['format']
+    is_active: boolean
+    league: NamedRef
+  }
+  treasury: number
+  team_value: number
+}
+
+
 export type Member = {
   user: UserPublic
   status: 'pending' | 'active'

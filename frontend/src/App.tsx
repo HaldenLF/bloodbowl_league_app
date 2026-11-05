@@ -4,6 +4,7 @@ import { logOut, type User } from './api.ts'
 import LeaguePage from './LeaguePage.tsx'
 import LoginForm from './LoginForm.tsx'
 import MyLeagues from './MyLeagues.tsx'
+import MyTeams from './MyTeams.tsx'
 import SeasonPage from './SeasonPage.tsx'
 import SignupForm from './SignupForm.tsx'
 import TeamPage from './TeamPage.tsx'
@@ -36,7 +37,7 @@ export default function App() {
       <TopBar key={location.pathname} user={user} onLogOut={handleLogOut} />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/teams" element={<ComingSoon what="Your teams" />} />
+        <Route path="/teams" element={<MyTeams />} />
         <Route path="/leagues" element={<MyLeagues user={user} />} />
         <Route path="/leagues/:leagueId" element={<LeaguePage user={user} />} />
         <Route path="/seasons/:seasonId" element={<SeasonPage user={user} />} />
@@ -58,15 +59,6 @@ function Home() {
   )
 }
 
-
-function ComingSoon({ what }: { what: string }) {
-  return (
-    <section>
-      <h2>{what}</h2>
-      <p>Coming soon.</p>
-    </section>
-  )
-}
 
 
 function NotFound() {
