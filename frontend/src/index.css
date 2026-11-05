@@ -28,15 +28,69 @@ main {
   padding-bottom: 32px;
 }
 
-header {
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 -16px 16px;
+  padding: 8px 16px;
+  background: var(--red);
+  color: var(--white);
+}
+
+.logo img {
+  display: block;
+}
+
+.topbar nav {
+  flex: 1;
   display: flex;
   justify-content: center;
-  align-items: center;
   gap: 8px;
-  padding: 8px 0;
-  margin-bottom: 16px;
-  border-bottom: 3px solid var(--red);
 }
+
+.topbar nav a {
+  padding: 4px 12px;
+  border-radius: 3px;
+  color: var(--white);
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.topbar nav a[aria-current='page'] {
+  background: var(--white);
+  color: var(--red);
+}
+
+.burger {
+  position: relative;
+}
+
+.burger > button {
+  border-color: var(--white);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.account-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 10;
+  min-width: 200px;
+  padding: 12px;
+  border: 1px solid var(--grid);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--ink);
+  text-align: left;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.2);
+}
+
+.account-menu p {
+  margin-bottom: 8px;
+}
+
 
 h1,
 h2 {

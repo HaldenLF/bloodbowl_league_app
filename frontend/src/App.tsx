@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, Route, Routes } from 'react-router'
+import { Link, Route, Routes, useLocation } from 'react-router'
 import { logOut, type User } from './api.ts'
 import LeaguePage from './LeaguePage.tsx'
 import LoginForm from './LoginForm.tsx'
@@ -7,9 +7,11 @@ import MyLeagues from './MyLeagues.tsx'
 import SeasonPage from './SeasonPage.tsx'
 import SignupForm from './SignupForm.tsx'
 import TeamPage from './TeamPage.tsx'
+import TopBar from './TopBar.tsx'
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null)
+  const location = useLocation()
 
   if (user === null) {
     return (
@@ -31,14 +33,11 @@ export default function App() {
 
   return (
     <main>
-      <header>
-        Logged in as <strong>{user.display_name}</strong> ({user.account_type}){' '}
-        <button type="button" onClick={handleLogOut}>
-          Log out
-        </button>
-      </header>
+      <TopBar key={location.pathname} user={user} onLogOut={handleLogOut} />
       <Routes>
-        <Route path="/" element={<MyLeagues user={user} />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/teams" element={<ComingSoon what="Your teams" />} />
+        <Route path="/leagues" element={<MyLeagues user={user} />} />
         <Route path="/leagues/:leagueId" element={<LeaguePage user={user} />} />
         <Route path="/seasons/:seasonId" element={<SeasonPage user={user} />} />
         <Route path="/teams/:teamId" element={<TeamPage user={user} />} />
@@ -46,6 +45,26 @@ export default function App() {
 
       </Routes>
     </main>
+  )
+}
+
+
+function Home() {
+  return (
+    <section>
+      <h2>Home</h2>
+      <p>Recent results, league tables and your teams will appear here.</p>
+    </section>
+  )
+}
+
+
+function ComingSoon({ what }: { what: string }) {
+  return (
+    <section>
+      <h2>{what}</h2>
+      <p>Coming soon.</p>
+    </section>
   )
 }
 

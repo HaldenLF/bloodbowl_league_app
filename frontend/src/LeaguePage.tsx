@@ -20,7 +20,7 @@ export default function LeaguePage({ user }: Props) {
     return (
       <section>
         <p role="alert">{league.error}</p>
-        <Link to="/">Back to my leagues</Link>
+        <Link to="/leagues">Back to my leagues</Link>
       </section>
     )
   }
@@ -35,7 +35,7 @@ export default function LeaguePage({ user }: Props) {
 
   return (
     <section>
-      <Link to="/">← My leagues</Link>
+      <Link to="/leagues">← My leagues</Link>
       <h2>{league.data.name}</h2>
       <p>Run by {league.data.owner.display_name}</p>
 

@@ -28,7 +28,7 @@ export default function TeamPage({ user }: Props) {
     return (
       <section>
         <p role="alert">{team.error}</p>
-        <Link to="/">Back to my leagues</Link>
+        <Link to="/leagues">Back to my leagues</Link>
       </section>
     )
   }

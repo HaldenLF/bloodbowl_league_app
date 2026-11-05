@@ -22,7 +22,7 @@ export default function SeasonPage({ user }: Props) {
     return (
       <section>
         <p role="alert">{season.error}</p>
-        <Link to="/">Back to my leagues</Link>
+        <Link to="/leagues">Back to my leagues</Link>
       </section>
     )
   }
