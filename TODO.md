@@ -1,7 +1,7 @@
 # Blood Bowl League App: Todo
 
 Done and still to do, in the order planned. The detail behind each finished item is in HANDOFF.md.
-Updated 2026-11-04.
+Updated 2026-11-05.
 
 ## Done
 
@@ -46,16 +46,47 @@ Updated 2026-11-04.
        - The suggestion is made in the browser, so there is no new public endpoint.
        - The dev database has several accounts called "string"; rename them before the unique
          index migration.
-4. [ ] **Roster table like the Print Roster sheet.** Remove the Notes column. Columns as on the sheet:
+4. [x] **Roster table like the Print Roster sheet.** Remove the Notes column. Columns as on the sheet:
        #, Name, Position, MA, ST, AG+, PA+, AV+, Skills and Improvements, Miss Next Game, Niggling
        Injuries, Comp, TD, Int, Cas, MVP, SPP, Total Value. Team info block (team, coach, race,
        treasury, TV), then re-rolls, staff and extras.
-5. [ ] **Look and feel from the sheet.** White, red and cream:
+5. [x] **Look and feel from the sheet.** White, red and cream:
        - red `#A61C00` with white text for headings and table headers;
        - cream `#F2E2D2` for label cells;
        - white for the body, Arial or a similar sans-serif.
        Self-hosted fonts only (see SECURITY.md).
-6. [ ] **Printable roster.** A print stylesheet so the team page prints like the Print Roster sheet.
+6. [x] **Printable roster.** A print stylesheet so the team page prints like the Print Roster sheet.
+
+## Design (agreed 2026-11-05, from the owner's sketches)
+
+Sketches and the sheet's print-out are in `backend/data/` (git-ignored; phone photos can carry GPS data).
+
+A. [ ] **App shell.** Top bar on every page: logo top-left (links home), Teams and Leagues in the
+       middle, burger menu on the right (account name, log out). Replaces "Logged in as".
+       Placeholder logo until the owner supplies an SVG or PNG.
+B. [ ] **Teams page and Leagues page.** Teams: each of my teams (current and past) with a strip of
+       relevant info (race, league, season, TV, record); choosing one opens the Print Roster layout.
+       Leagues: each league with relevant info; choosing one shows the season (league) table.
+       Needs a new `GET /me/teams` endpoint.
+C. [ ] **Roster in the full Print Roster layout**: 16 numbered slots and SP1-SP3 always shown,
+       6 advancement boxes under the skills, "135,000 GP" money, centred cells, full team info
+       (games, W/D/L, league points, TV/CTV, fans), inducements and special rules blocks. Parts that
+       need games or advancements stay blank until those exist.
+D. [ ] **Save as PDF**: `GET /teams/{id}/roster.pdf` built by the API with ReportLab, one A4
+       landscape page, member check (outsiders 404), rate limited, names escaped.
+E. [ ] **Home page** (the dashboard), in sections:
+       - **Recent games**: a snapshot of the latest results (and injuries) in my leagues.
+       - **My teams**: a short info card for each of my teams (race, league, season, TV, record),
+         linking to its roster.
+       - **Current leagues and tournaments** I'm in, with a link to each table.
+       - **FAQ**: how the app works (joining a league, hiring, treasury, printing a roster).
+         Static text written in the app, no database needed.
+       - **Commissioners** also see snapshots of the leagues they run, pending join requests
+         and issues raised by coaches.
+       Layout first, with "No games yet" / "No tournaments yet" until games and results (item 7)
+       and tournaments (item 16) exist.
+F. [ ] **Issues raised by coaches** (new): a coach reports an issue to their league's commissioner,
+       who sees and closes it. Needs its own small backend with permission checks.
 
 ## After that
 

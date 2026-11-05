@@ -20,3 +20,5 @@ Thumbs.db
 # xlsx 
 .xlsx
 *.xlsx
+
+backend/data/
